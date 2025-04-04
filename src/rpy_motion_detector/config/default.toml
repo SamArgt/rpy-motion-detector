@@ -1,0 +1,27 @@
+[camera]
+device = "/dev/video0"
+width = 640
+height = 480
+fps = 30
+
+[detection]
+threshold = 25
+min_area = 500
+blur_size = 21
+
+[movie]
+dirpath = "movies/"
+precapture_seconds = 5
+max_record_seconds = 60
+postcapture_seconds = 5
+
+[picture]
+dirpath = "pictures/"
+
+[event]
+on_event_start = "echo 'Motion detected!'"
+on_event_end = "echo 'Motion ended!'"
+on_movie_start = "echo 'Movie started!'"
+on_movie_end = "echo 'Movie ended!'"
+on_picture_taken = "echo 'Picture taken!'"
+

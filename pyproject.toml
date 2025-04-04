@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [project.scripts]
-motion_detector = "rpy_motion_detector.cli"
+motion_detector = "rpy_motion_detector.run"
 
 [project.urls]
 Homepage = "https://github.com/SamArgt/rpy-motion-detector"
