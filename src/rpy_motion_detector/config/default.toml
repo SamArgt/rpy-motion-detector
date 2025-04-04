@@ -13,7 +13,6 @@ blur_size = 21
 dirpath = "movies/"
 precapture_seconds = 5
 max_record_seconds = 60
-postcapture_seconds = 5
 
 [picture]
 dirpath = "pictures/"

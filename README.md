@@ -1,6 +1,7 @@
 # rpy_motion_detector
 
 `rpy_motion_detector` is a simple motion detection application designed to run on a Raspberry Pi. It uses the Raspberry Pi camera module and OpenCV to detect motion, capture pictures, and record videos when motion is detected. The application is configurable and supports custom event handling through shell commands.
+It is heavily inspired by (motionplus)[https://github.com/Motion-Project/motionplus]
 
 ## Features
 
