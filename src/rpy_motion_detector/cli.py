@@ -3,12 +3,13 @@ import io
 from PIL import Image
 
 def main():
-    cap = cv2.VideoCapture("/dev/video0")
+    video_path = "/dev/video0"
+    cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
-        raise IOError(f"Cannot open video file: {"/dev/video0"}")
+        raise IOError(f"Cannot open video file: {video_path}")
     ret, frame = cap.read()
     if not ret:
-        raise IOError(f"Cannot read video file: {"/dev/video0"}")
+        raise IOError(f"Cannot read video file: {video_path}")
     
     while True:
         ret, frame = cap.read()
