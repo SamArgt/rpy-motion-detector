@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rpy_motion_detector"
+version = "0.0.1"
+authors = [
+  { name="SamArgt" },
+]
+description = "A simple motion detector using OpenCV and RPi camera"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+dependencies = [
+    "picamera2",
+    "opencv",
+    "pillow",
+]
+
+[project.scripts]
+motion_detector = "rpy_motion_detector.cli"
+
+[project.urls]
+Homepage = "https://github.com/SamArgt/rpy-motion-detector"
