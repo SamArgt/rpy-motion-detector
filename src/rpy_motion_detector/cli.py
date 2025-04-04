@@ -3,7 +3,7 @@ import io
 from PIL import Image
 
 def main():
-    video_path = "/dev/video0"
+    video_path = "/dev/video40"
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         raise IOError(f"Cannot open video file: {video_path}")
