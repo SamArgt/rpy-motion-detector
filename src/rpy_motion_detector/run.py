@@ -1,10 +1,10 @@
 from motion_detector import MotionDetector
 
-def main():
-    motion = MotionDetector("config/default.toml")
+
+def run():
+    detector = MotionDetector("config/default.toml")
+    detector.start()
+
 
 if __name__ == "__main__":
-    main()
-
-
-
+    run()
