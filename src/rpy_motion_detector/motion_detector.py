@@ -131,12 +131,12 @@ class MotionDetector:
     def handle_motion_detection(self, frame):
 
         if not self.is_event_ongoing:
-            self.start_event()
+            self.start_event(frame)
 
         if not self.is_movie_recording:
             self.start_movie_recording()
 
-    def start_event(self):
+    def start_event(self, frame):
         logger.info("Starting event...")
         self.is_event_ongoing = True
         res = os.system(self.config.event.on_event_start)
@@ -146,6 +146,7 @@ class MotionDetector:
             )
         else:
             logger.info("Event start command was successfull.")
+        self.take_picture(frame)
 
     def stop_event(self):
         logger.info("Stopping event...")
@@ -196,3 +197,16 @@ class MotionDetector:
                 )
             else:
                 logger.info("Movie end command was successfull.")
+
+    def take_picture(self, frame):
+        logger.info("Taking picture...")
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = os.path.join(self.config.picture.dirpath, f"picture_{timestamp}.jpg")
+        cv2.imwrite(filename, self.frame)
+        res = os.system(self.config.event.on_picture_taken)
+        if res != 0:
+            logger.error(
+                f"Error executing picture taken command: {self.config.event.on_picture_taken}"
+            )
+        else:
+            logger.info("Picture taken command was successfull.")

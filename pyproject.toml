@@ -18,13 +18,12 @@ classifiers = [
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
 dependencies = [
-    "picamera2",
     "opencv",
     "pillow",
 ]
 
 [project.scripts]
-motion_detector = "rpy_motion_detector.run"
+motion_detector = "rpy_motion_detector.run:run"
 
 [project.urls]
 Homepage = "https://github.com/SamArgt/rpy-motion-detector"
