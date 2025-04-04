@@ -5,10 +5,10 @@ from PIL import Image
 def main():
     cap = cv2.VideoCapture("/dev/video0")
     if not cap.isOpened():
-        raise IOError(f"Cannot open video file: {video_path}")
+        raise IOError(f"Cannot open video file: {"/dev/video0"}")
     ret, frame = cap.read()
     if not ret:
-        raise IOError(f"Cannot read video file: {video_path}")
+        raise IOError(f"Cannot read video file: {"/dev/video0"}")
     
     while True:
         ret, frame = cap.read()
