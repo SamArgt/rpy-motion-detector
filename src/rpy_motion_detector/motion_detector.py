@@ -47,7 +47,6 @@ class MotionDetector:
         self.movie_start_time = 0
 
         # Pre-motion buffer variables
-        self.buffer_size = self.config.movie.precapture_seconds * self.config.camera.fps
         self.frame_buffer = []
 
     def start(self):
@@ -68,6 +67,7 @@ class MotionDetector:
             self.cam_height,
             self.cam_fps,
         )
+        self.buffer_size = self.config.movie.precapture_seconds * self.cam_fps
 
         while True:
             ret, frame = self.cap.read()
