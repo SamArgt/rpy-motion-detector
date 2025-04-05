@@ -103,7 +103,7 @@ class MotionDetector:
         dilated = cv2.dilate(thresh, None, iterations=self.config.detection.dilate_iterations)
 
         # TEST ------------
-        self.video_writer2.write(dilated)
+        self.video_writer2.write(gray)
         # TEST ------------
 
         # Find contours
