@@ -266,11 +266,12 @@ class MotionDetector:
             # Run the movie end command
             completed = subprocess.run(
                 self.config.event.on_movie_end,
+                shell=True,
                 capture_output=True
             )
             if completed.returncode != 0:
                 logger.error(
-                    f"Error executing movie end command: {self.config.event.on_movie_end}"
+                    f"Error executing movie end command: {completed.stderr.decode()}"
                 )
             else:
                 logger.info("Movie end command was successful.")
