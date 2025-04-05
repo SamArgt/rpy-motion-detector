@@ -199,7 +199,6 @@ class MotionDetector:
                 logger.info("Movie start command was successful.")
         except Exception as e:
             logger.error(f"Failed to start GStreamer process: {e}")
-        self.gst_process = None
 
     def stop_movie_recording(self):
         logger.info("Stopping movie recording...")
