@@ -3,7 +3,7 @@
 # It uses the v4l2src element to capture video and the filesink element to output to a file.
 
 DEVICE="/dev/video50"
-OUTPUT_FILE="/home/chmo/rpy-motion-detector/output/movies/test.mp4"
+OUTPUT_FILE="test.mp4"
 WIDTH=640
 HEIGHT=480
 FPS=30
