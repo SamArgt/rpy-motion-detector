@@ -14,7 +14,9 @@ It is heavily inspired by [motionplus](https://github.com/Motion-Project/motionp
 
 ## Requirements
 
-- Raspberry Pi with a camera module and GStreamer installed.
+- Raspberry Pi with a camera module
+- GStream installed
+- FFmpeg installed
 - Python 3.8 or higher.
 - Dependencies:
   - `picamera2`

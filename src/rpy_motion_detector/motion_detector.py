@@ -6,7 +6,6 @@ from dataclasses import dataclass
 import subprocess
 import cv2
 import threading
-import tempfile
 from config import MotionDetectorConfig
 
 # Set up logging configuration
@@ -239,19 +238,19 @@ class MotionDetector:
             else:
                 logger.info("Movie start command was successful.")
 
-    @staticmethod
-    def concatenate_movies(movie1: str, movie2: str, output_movie: str) -> subprocess.CompletedProcess:
+    def concatenate_movies(self, movie1: str, movie2: str, output_movie: str) -> subprocess.CompletedProcess:
         logger.info("Concatenating movies {} and {} to {}".format(movie1, movie2, output_movie))
         # Use ffmpeg to concatenate the movies
         # create a temporary file to store the list of files
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as temp_file:
+        file_list = os.path.join(self.config.movie.dirpath, 'file_list.txt')
+        with open(file_list, 'wb') as temp_file:
             temp_file.write(f"file '{movie1}'\n".encode())
             temp_file.write(f"file '{movie2}'\n".encode())
-            temp_file_path = temp_file.name
-            completed = subprocess.run(
-                ["ffmpeg", "-f", "concat", "-safe", "0", "-i", temp_file_path, "-c", "copy", output_movie],
-                capture_output=True
-            )
+        completed = subprocess.run(
+            ["ffmpeg", "-f", "concat", "-safe", "0", "-i", file_list, "-c", "copy", output_movie],
+            capture_output=True,
+            shell=True
+        )
         return completed
 
     def on_movie_end_action(self, precapture_movie_filename: str, movie_filename: str, final_movie_name: str):
