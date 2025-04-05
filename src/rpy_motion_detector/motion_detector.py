@@ -189,6 +189,7 @@ class MotionDetector:
         try:
             self.gst_process = subprocess.Popen(gst_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             self.is_movie_recording = True
+            self.movie_start_time = cv2.getTickCount()
             logger.info(f"GStreamer process started for recording: {filename}")
             res = os.system(self.config.event.on_movie_start)
             if res != 0:
