@@ -77,7 +77,7 @@ class MotionDetector:
 
         # Process frame for motion detection
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.GaussianBlur(gray, (self.blur_size, self.blur_size), 0)
+        gray = cv2.GaussianBlur(gray, (self.config.detection.blur_size, self.config.detection.blur_size), 0)
 
         # Apply background subtraction
         mask = self.background_subtractor.apply(gray)
@@ -86,7 +86,7 @@ class MotionDetector:
         _, thresh = cv2.threshold(mask, self.threshold, 255, cv2.THRESH_BINARY)
 
         # Dilate to fill gaps
-        dilated = cv2.dilate(thresh, None, iterations=2)
+        dilated = cv2.dilate(thresh, None, iterations=self.config.detection.dilate_iterations)
 
         # Find contours
         contours, _ = cv2.findContours(

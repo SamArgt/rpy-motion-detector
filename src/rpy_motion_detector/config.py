@@ -14,6 +14,8 @@ class DetectionConfig:
     max_area: int
     threshold: int
     background_substractor_history: int
+    blur_size: int = 5
+    dilate_iterations: int = 2
 
 @dataclass
 class MovieConfig:
@@ -59,7 +61,9 @@ class MotionDetectorConfig:
             min_area=config.getint('detection', 'min_area', fallback=500),
             max_area=config.getint('detection', 'max_area', fallback=5000),
             threshold=config.getint('detection', 'threshold', fallback=25),
-            background_substractor_history=config.getint('detection', 'background_substractor_history', fallback=500)
+            background_substractor_history=config.getint('detection', 'background_substractor_history', fallback=500),
+            blur_size=config.getint('detection', 'blur_size', fallback=21),
+            dilate_iterations=config.getint('detection', 'dilate_iterations', fallback=2)
         )
         self.movie = MovieConfig(
             dirpath=config.get('movie', 'dirpath', fallback='/tmp'),
