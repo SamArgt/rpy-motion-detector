@@ -220,8 +220,8 @@ class MotionDetector:
         if self.gst_process is not None:
             try:
                 # Terminate the GStreamer process
-                os.killpg(self.gst_process.pid, signal.SIGTERM)
-                self.gst_process.kill()
+                os.kill(self.gst_process.pid, signal.SIGTERM)
+                # self.gst_process.kill()
                 self.gst_process.wait()
                 logger.info(f"GStreamer process stopped. Movie saved to: {self.movie_filename}")
                 self.gst_process = None
