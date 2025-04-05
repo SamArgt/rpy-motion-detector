@@ -138,12 +138,15 @@ class MotionDetector:
             and self.video_writer is not None
         ):
             self.video_writer.write(frame)
-        movie_duration = (cv2.getTickCount() - self.movie_start_time) / cv2.getTickFrequency()
-        if movie_duration > self.config.movie.max_duration:
-            logger.info("Movie recording duration exceeded, stopping movie...")
+            movie_duration = (cv2.getTickCount() - self.movie_start_time) / cv2.getTickFrequency()
+            if movie_duration > self.config.movie.max_duration:
+                logger.info("Movie recording duration exceeded, stopping movie...")
+                self.stop_movie_recording()
+                logger.info("Starting new movie recording...")
+                self.start_movie_recording()
+        elif self.is_movie_recording:
+            # If movie recording is ongoing but event is not, stop the movie
             self.stop_movie_recording()
-            logger.info("Starting new movie recording...")
-            self.start_movie_recording()
 
     def handle_motion_detection(self, frame):
 
