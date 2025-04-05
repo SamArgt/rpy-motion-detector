@@ -187,11 +187,11 @@ class MotionDetector:
             "!", "queue",
             "!", "filesink",  f"location={self.movie_filename}"
         ]
-        gst_command = " ".join(gst_command)
-        logger.debug(f"GStreamer command: {gst_command}")
+        gst_command_printed = " ".join(gst_command)
+        logger.debug(f"GStreamer command: {gst_command_printed}")
         # Start the GStreamer process
         try:
-            self.gst_process = subprocess.Popen(gst_command, stdout=subprocess.STDOUT, stderr=subprocess.STDOUT)
+            self.gst_process = subprocess.Popen(gst_command)
         except Exception as e:
             logger.error(f"Failed to start GStreamer process: {e}")
         else:
