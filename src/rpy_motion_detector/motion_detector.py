@@ -192,9 +192,9 @@ class MotionDetector:
             True
         )
         for frame in frame_buffer:
-            video_writer.write(frame)
-            # Write the frame a second time because opencv is slow
-            video_writer.write(frame)
+            # Write the frame 4 times to the video writer
+            for _ in range(4):
+                video_writer.write(frame)
         video_writer.release()
         logger.info("Pre-capture frames recorded.")
 
