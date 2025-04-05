@@ -222,7 +222,7 @@ class MotionDetector:
         logger.info("Taking picture...")
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = os.path.join(self.config.picture.dirpath, f"picture_{timestamp}.jpg")
-        cv2.imwrite(filename, self.frame)
+        cv2.imwrite(filename, frame)
         res = os.system(self.config.event.on_picture_taken)
         if res != 0:
             logger.error(
