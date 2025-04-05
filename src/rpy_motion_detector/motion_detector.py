@@ -185,11 +185,12 @@ class MotionDetector:
             gst_str,
             cv2.CAP_GSTREAMER,
             0,
-            int(self.cam_fps / 2),
+            int(self.cam_fps),
             (int(self.cam_width), int(self.cam_height)),
             True
         )
         for frame in frame_buffer:
+            video_writer.write(frame)
             video_writer.write(frame)
         video_writer.release()
         logger.info("Pre-capture frames recorded.")
