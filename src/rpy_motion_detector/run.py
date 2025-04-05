@@ -1,4 +1,4 @@
-from motion_detector import MotionDetector
+from .motion_detector import MotionDetector
 import argparse
 
 

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import subprocess
 import cv2
 import threading
-from config import MotionDetectorConfig
+from .config import MotionDetectorConfig
 
 # Set up logging configuration
 logging.basicConfig(
