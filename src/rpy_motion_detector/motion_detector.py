@@ -2,6 +2,7 @@ import logging
 import os
 import datetime
 from dataclasses import dataclass
+import subprocess
 import cv2
 from config import MotionDetectorConfig
 
@@ -42,7 +43,7 @@ class MotionDetector:
         self.last_motion_time = 0
         self.is_event_ongoing = False
         self.is_movie_recording = False
-        self.video_writer = None
+        self.gst_process = None
         self.movie_start_time = 0
 
         # Pre-motion buffer variables
@@ -58,9 +59,15 @@ class MotionDetector:
             )
             return
 
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.config.camera.width)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config.camera.height)
-        self.cap.set(cv2.CAP_PROP_FPS, self.config.camera.fps)
+        self.cam_width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+        self.cam_height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        self.cam_fps = self.cap.get(cv2.CAP_PROP_FPS)
+        logger.debug(
+            "Camera properties: width=%s, height=%s, fps=%s",
+            self.cam_width,
+            self.cam_height,
+            self.cam_fps,
+        )
 
         while True:
             ret, frame = self.cap.read()
@@ -119,9 +126,8 @@ class MotionDetector:
         if (
             self.is_event_ongoing
             and self.is_movie_recording
-            and self.video_writer is not None
+            and self.gst_process is not None
         ):
-            self.video_writer.write(frame)
             movie_duration = (cv2.getTickCount() - self.movie_start_time) / cv2.getTickFrequency()
             if movie_duration > self.config.movie.max_duration:
                 logger.info("Movie recording duration exceeded, stopping movie...")
@@ -165,42 +171,55 @@ class MotionDetector:
 
     def start_movie_recording(self):
         logger.info("Starting movie recording...")
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = os.path.join(self.config.movie.dirpath, f"movie_{timestamp}.mp4")
-        self.video_writer = cv2.VideoWriter(
-            filename,
-            fourcc,
-            self.config.camera.fps,
-            (self.config.camera.width, self.config.camera.height),
-        )
-        self.is_movie_recording = True
-        self.movie_start_time = cv2.getTickCount()
-        res = os.system(self.config.event.on_movie_start)
-        if res != 0:
-            logger.error(
-                f"Error executing movie start command: {self.config.event.on_movie_start}"
-            )
-        else:
-            logger.info("Movie start command was successfull.")
-        # Write buffered frames to video file
-        for frame in self.frame_buffer:
-            self.video_writer.write(frame)
-        self.frame_buffer.clear()
+        # Construct the GStreamer pipeline command
+        gst_command = [
+            "gst-launch-1.0",
+            "v4l2src", f"device={self.config.movie.device}",
+            "!", "video/x-raw,framerate={}/1,width={},height={}".format(
+                self.cam_fps, self.cam_width, self.cam_height
+            ),
+            "!", "videoconvert",
+            "!", "x264enc", "tune=zerolatency", "bitrate=500",
+            "!", "mp4mux",
+            "!", f"filesink location={filename}"
+        ]
+        # Start the GStreamer process
+        try:
+            self.gst_process = subprocess.Popen(gst_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.is_movie_recording = True
+            logger.info(f"GStreamer process started for recording: {filename}")
+            res = os.system(self.config.event.on_movie_start)
+            if res != 0:
+                logger.error(
+                    f"Error executing movie start command: {self.config.event.on_movie_start}"
+                )
+            else:
+                logger.info("Movie start command was successful.")
+        except Exception as e:
+            logger.error(f"Failed to start GStreamer process: {e}")
+        self.gst_process = None
 
     def stop_movie_recording(self):
         logger.info("Stopping movie recording...")
-        if self.video_writer is not None:
-            self.video_writer.release()
-            self.video_writer = None
-            self.is_movie_recording = False
-            res = os.system(self.config.event.on_movie_end)
-            if res != 0:
-                logger.error(
-                    f"Error executing movie end command: {self.config.event.on_movie_end}"
-                )
-            else:
-                logger.info("Movie end command was successfull.")
+        if self.gst_process is not None:
+            try:
+                # Terminate the GStreamer process
+                self.gst_process.terminate()
+                self.gst_process.wait()
+                logger.info(f"GStreamer process stopped. Movie saved to: {self.movie_filename}")
+                self.gst_process = None
+                self.is_movie_recording = False
+                res = os.system(self.config.event.on_movie_end)
+                if res != 0:
+                    logger.error(
+                        f"Error executing movie end command: {self.config.event.on_movie_end}"
+                    )
+                else:
+                    logger.info("Movie end command was successful.")
+            except Exception as e:
+                logger.error(f"Failed to stop GStreamer process: {e}")
 
     def take_picture(self, frame):
         logger.info("Taking picture...")

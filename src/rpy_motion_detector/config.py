@@ -5,9 +5,6 @@ import configparser
 @dataclass
 class CameraConfig:
     device: str
-    width: int
-    height: int
-    fps: int
 
 
 @dataclass
@@ -22,6 +19,7 @@ class DetectionConfig:
 
 @dataclass
 class MovieConfig:
+    device: str
     dirpath: str
     precapture_seconds: int
     max_duration: int
@@ -56,9 +54,6 @@ class MotionDetectorConfig:
         config.read(config_file)
         self.camera = CameraConfig(
             device=config.get('camera', 'device', fallback='/dev/video0'),
-            width=config.getint('camera', 'width', fallback=640),
-            height=config.getint('camera', 'height', fallback=480),
-            fps=config.getint('camera', 'fps', fallback=30)
         )
         self.detection = DetectionConfig(
             min_area=config.getint('detection', 'min_area', fallback=500),
@@ -70,6 +65,7 @@ class MotionDetectorConfig:
             dilate_iterations=config.getint('detection', 'dilate_iterations', fallback=2)
         )
         self.movie = MovieConfig(
+            device=config.get('movie', 'device', fallback='/dev/video50'),
             dirpath=config.get('movie', 'dirpath', fallback='/tmp'),
             precapture_seconds=config.getint('movie', 'precapture_seconds', fallback=5),
             max_duration=config.getint('movie', 'max_duration', fallback=60)
