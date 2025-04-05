@@ -19,7 +19,11 @@ logger = logging.getLogger(__name__)
 class MotionDetector:
     """Class to handle motion detection."""
 
-    def __init__(self, config_file: str):
+    def __init__(self, config_file: str, use_default=False):
+        if not use_default:
+            if not os.path.exists(config_file):
+                logger.error(f"Configuration file not found: {config_file}")
+                raise FileNotFoundError(f"Configuration file not found: {config_file}")
         self.config = MotionDetectorConfig(config_file)
         logger.debug("MotionDetector initialized with config: %s", self.config)
 
