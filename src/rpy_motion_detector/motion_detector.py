@@ -176,31 +176,31 @@ class MotionDetector:
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         self.movie_filename = os.path.join(self.config.movie.dirpath, f"movie_{timestamp}.mp4")
         # Construct the GStreamer pipeline command
-        gst_command = [
-            "gst-launch-1.0", "-e",
-            "v4l2src", f"device={self.config.movie.device}",
-            "!", "video/x-raw,framerate={}/1,width={},height={}".format(
-                int(self.cam_fps), int(self.cam_width), int(self.cam_height)
-            ),
-            "!", "videoconvert",
-            "!", "x264enc", "speed-preset=ultrafast", "threads=1",
-            "!", "mp4mux",
-            "!", "queue",
-            "!", "filesink",  f"location={self.movie_filename}"
-        ]
         # gst_command = [
-        #     "/home/chmo/gstreamer-pipelines/stream_to_file.sh",
-        #     "--device", self.config.movie.device,
-        #     "--width", str(int(self.cam_width)),
-        #     "--height", str(int(self.cam_height)),
-        #     "--fps", str(int(self.cam_fps)),
-        #     "--output-file", self.movie_filename
+        #     "gst-launch-1.0", "-e",
+        #     "v4l2src", f"device={self.config.movie.device}",
+        #     "!", "video/x-raw,framerate={}/1,width={},height={}".format(
+        #         int(self.cam_fps), int(self.cam_width), int(self.cam_height)
+        #     ),
+        #     "!", "videoconvert",
+        #     "!", "x264enc", "speed-preset=ultrafast", "threads=1",
+        #     "!", "mp4mux",
+        #     "!", "queue",
+        #     "!", "filesink",  f"location={self.movie_filename}"
         # ]
+        gst_command = [
+            "/home/chmo/gstreamer-pipelines/stream_to_file.sh",
+            "--device", self.config.movie.device,
+            "--width", str(int(self.cam_width)),
+            "--height", str(int(self.cam_height)),
+            "--fps", str(int(self.cam_fps)),
+            "--output-file", self.movie_filename
+        ]
         gst_command_printed = " ".join(gst_command)
         logger.debug(f"GStreamer command: {gst_command_printed}")
         # Start the GStreamer process
         try:
-            self.gst_process = subprocess.Popen(gst_command_printed, shell=True)
+            self.gst_process = subprocess.Popen(gst_command, shell=False)
         except Exception as e:
             logger.error(f"Failed to start GStreamer process: {e}")
         else:
