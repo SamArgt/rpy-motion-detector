@@ -178,7 +178,7 @@ class MotionDetector:
             f"appsrc ! "
             f"videoconvert ! "
             f"textoverlay text=TRIGGER valignment=top halignment=left "
-            f"font-desc=\"Sans, 18\" ! "
+            f"font-desc=\"Sans, 18\" xpad=5 ypad=5 ! "
             f"x264enc speed-preset=ultrafast tune=zerolatency ! "
             f"mp4mux ! "
             f"filesink location={movie_filename}"
