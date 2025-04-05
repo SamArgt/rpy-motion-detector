@@ -192,7 +192,7 @@ class MotionDetector:
         # Record pre-capture frames in a separate thread
         _ = threading.Thread(
             target=self.record_precapture_frames,
-            args=(self.frame_buffer, f"pre_capture_{self.movie_filename}"),
+            args=(self.frame_buffer, os.path.join(self.config.movie.dirpath, f"pre_capture_movie_{timestamp}.mp4")),
         ).start()
         # Record movie using GStreamer
         logger.debug("Starting GStreamer process...")
