@@ -45,6 +45,7 @@ class MotionDetector:
         self.is_movie_recording = False
         self.gst_process = None
         self.movie_start_time = 0
+        self.movie_filename = ""
 
         # Pre-motion buffer variables
         self.frame_buffer = []
@@ -172,7 +173,7 @@ class MotionDetector:
     def start_movie_recording(self):
         logger.info("Starting movie recording...")
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = os.path.join(self.config.movie.dirpath, f"movie_{timestamp}.mp4")
+        self.movie_filename = os.path.join(self.config.movie.dirpath, f"movie_{timestamp}.mp4")
         # Construct the GStreamer pipeline command
         gst_command = [
             "gst-launch-1.0",
@@ -183,14 +184,14 @@ class MotionDetector:
             "!", "videoconvert",
             "!", "x264enc", "tune=zerolatency", "bitrate=500",
             "!", "mp4mux",
-            "!", f"filesink location={filename}"
+            "!", f"filesink location={self.movie_filename}"
         ]
         # Start the GStreamer process
         try:
-            self.gst_process = subprocess.Popen(gst_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.gst_process = subprocess.Popen(gst_command, stdout=subprocess.STDOUT, stderr=subprocess.STDOUT)
             self.is_movie_recording = True
             self.movie_start_time = cv2.getTickCount()
-            logger.info(f"GStreamer process started for recording: {filename}")
+            logger.info(f"GStreamer process started for recording: {self.movie_filename}")
             res = os.system(self.config.event.on_movie_start)
             if res != 0:
                 logger.error(
