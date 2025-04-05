@@ -177,6 +177,8 @@ class MotionDetector:
         gst_str = (
             f"appsrc ! "
             f"videoconvert ! "
+            f"textoverlay text=PRE-CAPTURE valignment=top halignment=left "
+            f"font-desc=\"Sans, 18\" ! "
             f"x264enc speed-preset=ultrafast tune=zerolatency ! "
             f"mp4mux ! "
             f"filesink location={movie_filename}"
@@ -191,6 +193,7 @@ class MotionDetector:
         )
         for frame in frame_buffer:
             video_writer.write(frame)
+            # Write the frame a second time because opencv is slow
             video_writer.write(frame)
         video_writer.release()
         logger.info("Pre-capture frames recorded.")

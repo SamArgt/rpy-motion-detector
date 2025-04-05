@@ -49,6 +49,7 @@ gst-launch-1.0 -e \
     v4l2src device=$DEVICE \
     ! video/x-raw,framerate=$FPS/1,width=$WIDTH,height=$HEIGHT \
     ! videoconvert \
+    ! clockoverlay valignment=bottom halignment=right font-desc="Sans, 18" \
     ! x264enc speed-preset=ultrafast threads=1 \
     ! mp4mux \
     ! queue \
