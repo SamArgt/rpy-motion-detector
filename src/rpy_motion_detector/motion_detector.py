@@ -246,8 +246,11 @@ class MotionDetector:
         with open(file_list, 'wb') as temp_file:
             temp_file.write(f"file '{movie1}'\n".encode())
             temp_file.write(f"file '{movie2}'\n".encode())
+
+        cmd = f"ffmpeg -f concat -safe 0 -i {file_list} -c copy {output_movie}"
+        logger.debug(f"Running command: {cmd}")
         completed = subprocess.run(
-            ["ffmpeg", "-f", "concat", "-safe", "0", "-i", file_list, "-c", "copy", output_movie],
+            cmd,
             capture_output=True,
             shell=True
         )
