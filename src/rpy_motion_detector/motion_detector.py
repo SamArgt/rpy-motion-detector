@@ -191,7 +191,7 @@ class MotionDetector:
         logger.debug(f"GStreamer command: {gst_command_printed}")
         # Start the GStreamer process
         try:
-            self.gst_process = subprocess.Popen(gst_command)
+            self.gst_process = subprocess.Popen(gst_command, shell=True)
         except Exception as e:
             logger.error(f"Failed to start GStreamer process: {e}")
         else:
@@ -211,7 +211,7 @@ class MotionDetector:
         if self.gst_process is not None:
             try:
                 # Terminate the GStreamer process
-                self.gst_process.kill()
+                self.gst_process.terminate()
                 self.gst_process.wait()
                 logger.info(f"GStreamer process stopped. Movie saved to: {self.movie_filename}")
                 self.gst_process = None
