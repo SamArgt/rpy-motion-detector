@@ -177,7 +177,7 @@ class MotionDetector:
         video_writer = cv2.VideoWriter(
             movie_filename,
             cv2.VideoWriter_fourcc(*"mp4v"),
-            self.cam_fps,
+            int(self.cam_fps) / 2,  # Use half the framerate for pre-capture because opencv is slow
             (int(self.cam_width), int(self.cam_height)),
         )
         for frame in frame_buffer:
