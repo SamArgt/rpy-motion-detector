@@ -39,7 +39,7 @@ class EventConfig:
     on_event_end: str
     on_movie_start: str
     on_movie_end: str
-    on_picture_taken: str
+    on_picture_save: str
 
 
 @dataclass
@@ -82,5 +82,5 @@ class MotionDetectorConfig:
             on_event_end=config.get('event', 'on_event_end', fallback=''),
             on_movie_start=config.get('event', 'on_movie_start', fallback=''),
             on_movie_end=config.get('event', 'on_movie_end', fallback=''),
-            on_picture_taken=config.get('event', 'on_picture_taken', fallback='')
+            on_picture_save=config.get('event', 'on_picture_save', fallback='')
         )

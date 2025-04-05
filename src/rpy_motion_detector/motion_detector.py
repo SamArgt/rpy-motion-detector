@@ -306,10 +306,10 @@ class MotionDetector:
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = os.path.join(self.config.picture.dirpath, f"picture_{timestamp}.jpg")
         cv2.imwrite(filename, frame)
-        res = os.system(self.config.event.on_picture_taken)
+        res = os.system(self.config.event.on_picture_save)
         if res != 0:
             logger.error(
-                f"Error executing picture taken command: {self.config.event.on_picture_taken}"
+                f"Error executing picture taken command: {self.config.event.on_picture_save}"
             )
         else:
             logger.info("Picture taken command was successfull.")
