@@ -83,7 +83,7 @@ class MotionDetector:
         mask = self.background_subtractor.apply(gray)
 
         # Apply thresholding to reduce noise
-        _, thresh = cv2.threshold(mask, self.threshold, 255, cv2.THRESH_BINARY)
+        _, thresh = cv2.threshold(mask, self.config.detection.threshold, 255, cv2.THRESH_BINARY)
 
         # Dilate to fill gaps
         dilated = cv2.dilate(thresh, None, iterations=self.config.detection.dilate_iterations)
