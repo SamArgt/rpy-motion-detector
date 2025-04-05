@@ -173,7 +173,7 @@ class MotionDetector:
             logger.info("Event end command was successfull.")
 
     def record_precapture_frames(self, frame_buffer: list, movie_filename: str):
-        logger.info("Recording pre-capture frames...")
+        logger.info("Recording pre-capture frames to %s", {movie_filename})
         video_writer = cv2.VideoWriter(
             movie_filename,
             cv2.VideoWriter_fourcc(*"mp4v"),
