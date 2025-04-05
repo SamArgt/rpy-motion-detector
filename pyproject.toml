@@ -18,7 +18,7 @@ classifiers = [
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
 dependencies = [
-    "opencv",
+    "opencv-python",
     "pillow",
 ]
 

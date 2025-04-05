@@ -2,7 +2,7 @@ from motion_detector import MotionDetector
 import argparse
 
 
-def run(config_file: str = "config/default.toml"):
+def run(config_file: str):
     detector = MotionDetector(config_file)
     detector.start()
 
@@ -12,8 +12,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--config",
         type=str,
-        default="config/default.toml",
+        default="config/default.ini",
         help="Path to the configuration file",
     )
     args = parser.parse_args()
-    run()
+    run(args.config)

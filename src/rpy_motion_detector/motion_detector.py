@@ -20,12 +20,12 @@ class MotionDetector:
 
         # create movie directory if it doesn't exist
         if not os.path.exists(self.config.movie.dirpath):
-            # os.makedirs(self.config.movie.dirpath)
+            os.makedirs(self.config.movie.dirpath)
             logger.debug(f"Created movie directory: {self.config.movie.dirpath}")
 
         # create picture directory if it doesn't exist
         if not os.path.exists(self.config.picture.dirpath):
-            # os.makedirs(self.config.picture.dirpath)
+            os.makedirs(self.config.picture.dirpath)
             logger.debug(f"Created picture directory: {self.config.picture.dirpath}")
 
         # Initialize variables
