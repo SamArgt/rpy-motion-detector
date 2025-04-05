@@ -221,7 +221,7 @@ class MotionDetector:
             try:
                 # Terminate the GStreamer process
                 # self.gst_proces.send_signal(signal.CTRL_C_EVENT)
-                os.killpg(os.getpgid(self.gst_process.pid), signal.SIGTERM)
+                os.killpg(os.getpgid(self.gst_process.pid), signal.SIGINT)
                 # self.gst_process.kill()
                 self.gst_process.wait()
                 logger.info(f"GStreamer process stopped. Movie saved to: {self.movie_filename}")
