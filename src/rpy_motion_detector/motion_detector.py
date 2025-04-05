@@ -211,6 +211,7 @@ class MotionDetector:
                 logger.info(f"GStreamer process stopped. Movie saved to: {self.movie_filename}")
                 self.gst_process = None
                 self.is_movie_recording = False
+                self.movie_start_time = 0
                 res = os.system(self.config.event.on_movie_end)
                 if res != 0:
                     logger.error(
