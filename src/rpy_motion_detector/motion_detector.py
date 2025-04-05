@@ -176,15 +176,16 @@ class MotionDetector:
         self.movie_filename = os.path.join(self.config.movie.dirpath, f"movie_{timestamp}.mp4")
         # Construct the GStreamer pipeline command
         gst_command = [
-            "gst-launch-1.0",
+            "gst-launch-1.0", "-e",
             "v4l2src", f"device={self.config.movie.device}",
             "!", "video/x-raw,framerate={}/1,width={},height={}".format(
                 self.cam_fps, self.cam_width, self.cam_height
             ),
             "!", "videoconvert",
-            "!", "x264enc", "tune=zerolatency", "bitrate=500",
+            "!", "x264enc", "speed-preset=ultrafast", "threads=1",
             "!", "mp4mux",
-            "!", f"filesink location={self.movie_filename}"
+            "!", "queue",
+            "!", "filesink",  f"location={self.movie_filename}"
         ]
         # Start the GStreamer process
         try:
