@@ -192,6 +192,9 @@ class MotionDetector:
         # Start the GStreamer process
         try:
             self.gst_process = subprocess.Popen(gst_command, stdout=subprocess.STDOUT, stderr=subprocess.STDOUT)
+        except Exception as e:
+            logger.error(f"Failed to start GStreamer process: {e}")
+        else:
             self.is_movie_recording = True
             self.movie_start_time = cv2.getTickCount()
             logger.info(f"GStreamer process started for recording: {self.movie_filename}")
@@ -202,8 +205,6 @@ class MotionDetector:
                 )
             else:
                 logger.info("Movie start command was successful.")
-        except Exception as e:
-            logger.error(f"Failed to start GStreamer process: {e}")
 
     def stop_movie_recording(self):
         logger.info("Stopping movie recording...")
