@@ -177,7 +177,7 @@ class MotionDetector:
         gst_str = (
             f"appsrc ! "
             f"videoconvert ! "
-            f"textoverlay text=PRE-CAPTURE valignment=top halignment=left "
+            f"textoverlay text=TRIGGER valignment=top halignment=left "
             f"font-desc=\"Sans, 18\" ! "
             f"x264enc speed-preset=ultrafast tune=zerolatency ! "
             f"mp4mux ! "
