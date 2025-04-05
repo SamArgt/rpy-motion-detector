@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import subprocess
 import cv2
 import threading
+import tempfile
 from config import MotionDetectorConfig
 
 # Set up logging configuration
@@ -185,7 +186,7 @@ class MotionDetector:
             gst_str,
             cv2.CAP_GSTREAMER,
             0,
-            int(self.cam_fps),
+            int(self.cam_fps / 2),
             (int(self.cam_width), int(self.cam_height)),
             True
         )
@@ -198,10 +199,16 @@ class MotionDetector:
         logger.info("Starting movie recording...")
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         self.movie_filename = os.path.join(self.config.movie.dirpath, f"movie_{timestamp}.mp4")
+        self.precapture_movie_filename = os.path.join(
+            self.config.movie.dirpath, f"precapture_movie_{timestamp}.mp4"
+        )
+        self.final_movie_filename = os.path.join(
+            self.config.movie.dirpath, f"final_movie_{timestamp}.mp4"
+        )
         # Record pre-capture frames in a separate thread
         _ = threading.Thread(
             target=self.record_precapture_frames,
-            args=(self.frame_buffer, os.path.join(self.config.movie.dirpath, f"pre_capture_movie_{timestamp}.mp4")),
+            args=(self.frame_buffer, self.precapture_movie_filename),
         ).start()
         # Record movie using GStreamer
         logger.debug("Starting GStreamer process...")
@@ -232,6 +239,40 @@ class MotionDetector:
             else:
                 logger.info("Movie start command was successful.")
 
+    @staticmethod
+    def concatenate_movies(movie1: str, movie2: str, output_movie: str) -> subprocess.CompletedProcess:
+        logger.info("Concatenating movies {} and {} to {}".format(movie1, movie2, output_movie))
+        # Use ffmpeg to concatenate the movies
+        # create a temporary file to store the list of files
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as temp_file:
+            temp_file.write(f"file '{movie1}'\n".encode())
+            temp_file.write(f"file '{movie2}'\n".encode())
+            temp_file_path = temp_file.name
+            completed = subprocess.run(
+                ["ffmpeg", "-f", "concat", "-safe", "0", "-i", temp_file_path, "-c", "copy", output_movie],
+                capture_output=True
+            )
+        return completed
+
+    def on_movie_end_action(self, precapture_movie_filename: str, movie_filename: str, final_movie_name: str):
+        # Concatenate the pre-capture and movie files
+        completed = self.concatenate_movies(precapture_movie_filename, movie_filename, final_movie_name)
+        if completed.returncode != 0:
+            logger.error(f"Error concatenating movies: {completed.stderr.decode()}")
+        else:
+            logger.info(f"Movies concatenated successfully: {final_movie_name}")
+            # Run the movie end command
+            completed = subprocess.run(
+                self.config.event.on_movie_end,
+                capture_output=True
+            )
+            if completed.returncode != 0:
+                logger.error(
+                    f"Error executing movie end command: {self.config.event.on_movie_end}"
+                )
+            else:
+                logger.info("Movie end command was successful.")
+
     def stop_movie_recording(self):
         logger.info("Stopping movie recording...")
         if self.gst_process is not None:
@@ -243,13 +284,13 @@ class MotionDetector:
                 self.gst_process = None
                 self.is_movie_recording = False
                 self.movie_start_time = 0
-                res = os.system(self.config.event.on_movie_end)
-                if res != 0:
-                    logger.error(
-                        f"Error executing movie end command: {self.config.event.on_movie_end}"
-                    )
-                else:
-                    logger.info("Movie end command was successful.")
+                _ = threading.Thread(
+                    target=self.on_movie_end_action,
+                    args=(self.precapture_movie_filename, self.movie_filename, self.final_movie_filename),
+                ).start()
+                self.precapture_movie_filename = None,
+                self.movie_filename = None
+                self.final_movie_filename = None
             except Exception as e:
                 logger.error(f"Failed to stop GStreamer process: {e}")
 
