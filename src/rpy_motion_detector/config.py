@@ -3,6 +3,12 @@ import configparser
 
 
 @dataclass
+class LogConfig:
+    level: str
+    file: str
+
+
+@dataclass
 class CameraConfig:
     device: str
 
@@ -49,6 +55,7 @@ class MotionDetectorConfig:
     movie: MovieConfig
     picture: PictureConfig
     event: EventConfig
+    log: LogConfig
 
     def __init__(self, config_file: str):
         config = configparser.ConfigParser()
@@ -83,4 +90,8 @@ class MotionDetectorConfig:
             on_movie_start=config.get('event', 'on_movie_start', fallback=''),
             on_movie_end=config.get('event', 'on_movie_end', fallback=''),
             on_picture_save=config.get('event', 'on_picture_save', fallback='')
+        )
+        self.log = LogConfig(
+            level=config.get('log', 'level', fallback='INFO'),
+            file=config.get('log', 'file', fallback=None)
         )

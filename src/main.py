@@ -9,5 +9,10 @@ if __name__ == "__main__":
         type=str,
         help="Path to the configuration file",
     )
+    parser.add_argument(
+        "--dry-run",
+        help="Dry run mode, do not start the motion detector",
+        action="store_true",
+    )
     args = parser.parse_args()
-    run(args.config)
+    run(args.config, args.dry_run)
