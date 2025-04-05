@@ -5,6 +5,7 @@ import datetime
 from dataclasses import dataclass
 import subprocess
 import cv2
+import threading
 from config import MotionDetectorConfig
 
 # Set up logging configuration
@@ -171,25 +172,32 @@ class MotionDetector:
         else:
             logger.info("Event end command was successfull.")
 
+    def record_precapture_frames(self, frame_buffer: list, movie_filename: str):
+        logger.info("Recording pre-capture frames...")
+        video_writer = cv2.VideoWriter(
+            movie_filename,
+            cv2.VideoWriter_fourcc(*"mp4v"),
+            self.cam_fps,
+            (int(self.cam_width), int(self.cam_height)),
+        )
+        for frame in frame_buffer:
+            video_writer.write(frame)
+        video_writer.release()
+        logger.info("Pre-capture frames recorded.")
+
     def start_movie_recording(self):
         logger.info("Starting movie recording...")
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         self.movie_filename = os.path.join(self.config.movie.dirpath, f"movie_{timestamp}.mp4")
-        # Construct the GStreamer pipeline command
-        # gst_command = [
-        #     "gst-launch-1.0", "-e",
-        #     "v4l2src", f"device={self.config.movie.device}",
-        #     "!", "video/x-raw,framerate={}/1,width={},height={}".format(
-        #         int(self.cam_fps), int(self.cam_width), int(self.cam_height)
-        #     ),
-        #     "!", "videoconvert",
-        #     "!", "x264enc", "speed-preset=ultrafast", "threads=1",
-        #     "!", "mp4mux",
-        #     "!", "queue",
-        #     "!", "filesink",  f"location={self.movie_filename}"
-        # ]
+        # Record pre-capture frames in a separate thread
+        _ = threading.Thread(
+            target=self.record_precapture_frames,
+            args=(self.frame_buffer, f"pre_capture_{self.movie_filename}"),
+        )
+        # Record movie using GStreamer
+        logger.debug("Starting GStreamer process...")
         gst_command = [
-            "/home/chmo/gstreamer-pipelines/stream_to_file.sh",
+            self.config.movie.gstreamer_exec_file,
             "--device", self.config.movie.device,
             "--width", str(int(self.cam_width)),
             "--height", str(int(self.cam_height)),
@@ -220,9 +228,7 @@ class MotionDetector:
         if self.gst_process is not None:
             try:
                 # Terminate the GStreamer process
-                # self.gst_proces.send_signal(signal.CTRL_C_EVENT)
                 os.killpg(os.getpgid(self.gst_process.pid), signal.SIGINT)
-                # self.gst_process.kill()
                 self.gst_process.wait()
                 logger.info(f"GStreamer process stopped. Movie saved to: {self.movie_filename}")
                 self.gst_process = None

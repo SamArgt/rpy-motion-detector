@@ -20,6 +20,7 @@ class DetectionConfig:
 @dataclass
 class MovieConfig:
     device: str
+    gstreamer_exec_file: str
     dirpath: str
     precapture_seconds: int
     max_duration: int
@@ -68,7 +69,8 @@ class MotionDetectorConfig:
             device=config.get('movie', 'device', fallback='/dev/video50'),
             dirpath=config.get('movie', 'dirpath', fallback='/tmp'),
             precapture_seconds=config.getint('movie', 'precapture_seconds', fallback=5),
-            max_duration=config.getint('movie', 'max_duration', fallback=60)
+            max_duration=config.getint('movie', 'max_duration', fallback=60),
+            gstreamer_exec_file=config.get('movie', 'gstreamer_exec_file', fallback='stream_to_file.sh')
         )
         self.picture = PictureConfig(
             dirpath=config.get('picture', 'dirpath', fallback='/tmp')
