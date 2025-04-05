@@ -1,8 +1,8 @@
 import logging
 import os
-import cv2
-import time
 import datetime
+from dataclasses import dataclass
+import cv2
 from config import MotionDetectorConfig
 
 # Set up logging configuration
@@ -12,28 +12,32 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+@dataclass
 class MotionDetector:
+    """Class to handle motion detection."""
 
     def __init__(self, config_file: str):
         self.config = MotionDetectorConfig(config_file)
-        logger.debug(f"MotionDetector initialized with config: {self.config}")
+        logger.debug("MotionDetector initialized with config: %s", self.config)
 
         # create movie directory if it doesn't exist
         if not os.path.exists(self.config.movie.dirpath):
             os.makedirs(self.config.movie.dirpath)
-            logger.debug(f"Created movie directory: {self.config.movie.dirpath}")
+            logger.debug(
+                "Created movie directory: %s", self.config.movie.dirpath)
 
         # create picture directory if it doesn't exist
         if not os.path.exists(self.config.picture.dirpath):
             os.makedirs(self.config.picture.dirpath)
-            logger.debug(f"Created picture directory: {self.config.picture.dirpath}")
+            logger.debug(
+                "Created picture directory: %s", self.config.picture.dirpath)
 
         # Initialize variables
         self.cap = None
-        self.background_subtractor = cv2.createBackgroundSubtractorMOG2(
+        self.background_subtractor = cv2.bgsegm.createBackgroundSubtractorMOG(
             history=self.config.detection.background_substractor_history,
-            varThreshold=self.config.detection.threshold,
-            detectShadows=False,
+            nmixtures=self.config.detection.threshold,
+            backgroundRatio=0.7,
         )
         self.last_motion_time = 0
         self.is_event_ongoing = False
@@ -98,7 +102,7 @@ class MotionDetector:
             area = cv2.contourArea(contour)
             if self.config.detection.min_area < area < self.config.detection.max_area:
                 motion_detected = True
-                self.last_motion_time = time.time()
+                self.last_motion_time = cv2.getTickCount()
                 break
 
         # handle motion detection or no motion
@@ -108,7 +112,7 @@ class MotionDetector:
         else:
             logger.debug("No motion detected.")
             if self.is_event_ongoing:
-                time_since_last_motion = time.time() - self.last_motion_time
+                time_since_last_motion = (cv2.getTickCount() - self.last_motion_time) / cv2.getTickFrequency()
                 if time_since_last_motion > self.config.event.no_motion_timeout:
                     logger.info("No motion detected for a while, stopping event...")
                     self.stop_event()
@@ -121,7 +125,7 @@ class MotionDetector:
             and self.video_writer is not None
         ):
             self.video_writer.write(frame)
-        movie_duration = time.time() - self.movie_start_time
+        movie_duration = (cv2.getTickCount() - self.movie_start_time) / cv2.getTickFrequency()
         if movie_duration > self.config.movie.max_duration:
             logger.info("Movie recording duration exceeded, stopping movie...")
             self.stop_movie_recording()
@@ -161,9 +165,9 @@ class MotionDetector:
 
     def start_movie_recording(self):
         logger.info("Starting movie recording...")
-        fourcc = cv2.VideoWriter_fourcc(*"XVID")
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = os.path.join(self.config.movie.dirpath, f"movie_{timestamp}.avi")
+        filename = os.path.join(self.config.movie.dirpath, f"movie_{timestamp}.mp4")
         self.video_writer = cv2.VideoWriter(
             filename,
             fourcc,
@@ -171,7 +175,7 @@ class MotionDetector:
             (self.config.camera.width, self.config.camera.height),
         )
         self.is_movie_recording = True
-        self.movie_start_time = time.time()
+        self.movie_start_time = cv2.getTickCount()
         res = os.system(self.config.event.on_movie_start)
         if res != 0:
             logger.error(

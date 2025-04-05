@@ -1,12 +1,14 @@
 from dataclasses import dataclass
 import configparser
 
+
 @dataclass
 class CameraConfig:
     device: str
     width: int
     height: int
     fps: int
+
 
 @dataclass
 class DetectionConfig:
@@ -16,6 +18,7 @@ class DetectionConfig:
     background_substractor_history: int
     blur_size: int = 5
     dilate_iterations: int = 2
+
 
 @dataclass
 class MovieConfig:
@@ -31,8 +34,8 @@ class PictureConfig:
 
 @dataclass
 class EventConfig:
-    no_motion_timeout: int # number of seconds without motion to wait before stopping the event
-    event_gap: int # number of seconds to wait before starting a new event after the previous one ends
+    no_motion_timeout: int  # number of seconds without motion to wait before stopping the event
+    event_gap: int  # number of seconds to wait before starting a new event after the previous one ends
     on_event_start: str
     on_event_end: str
     on_movie_start: str
@@ -61,7 +64,8 @@ class MotionDetectorConfig:
             min_area=config.getint('detection', 'min_area', fallback=500),
             max_area=config.getint('detection', 'max_area', fallback=5000),
             threshold=config.getint('detection', 'threshold', fallback=25),
-            background_substractor_history=config.getint('detection', 'background_substractor_history', fallback=500),
+            background_substractor_history=config.getint(
+                'detection', 'background_substractor_history', fallback=500),
             blur_size=config.getint('detection', 'blur_size', fallback=21),
             dilate_iterations=config.getint('detection', 'dilate_iterations', fallback=2)
         )
