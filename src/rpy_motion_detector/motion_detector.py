@@ -174,11 +174,20 @@ class MotionDetector:
 
     def record_precapture_frames(self, frame_buffer: list, movie_filename: str):
         logger.info("Recording pre-capture frames to %s", {movie_filename})
+        gst_str = (
+            f"appsrc ! "
+            f"videoconvert ! "
+            f"x264enc speed-preset=ultrafast tune=zerolatency ! "
+            f"mp4mux ! "
+            f"filesink location={movie_filename}"
+        )
         video_writer = cv2.VideoWriter(
-            movie_filename,
-            cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
-            int(self.cam_fps) / 2,  # Use half the framerate for pre-capture because opencv is slow
+            gst_str,
+            cv2.CAP_GSTREAMER,
+            0,
+            int(self.cam_fps),
             (int(self.cam_width), int(self.cam_height)),
+            True
         )
         for frame in frame_buffer:
             video_writer.write(frame)
