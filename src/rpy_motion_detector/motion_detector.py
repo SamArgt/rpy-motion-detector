@@ -200,7 +200,7 @@ class MotionDetector:
         logger.debug(f"GStreamer command: {gst_command_printed}")
         # Start the GStreamer process
         try:
-            self.gst_process = subprocess.Popen(gst_command_printed, shell=False, preexec_fn=os.setsid)
+            self.gst_process = subprocess.Popen(gst_command_printed, shell=True, preexec_fn=os.setsid)
         except Exception as e:
             logger.error(f"Failed to start GStreamer process: {e}")
         else:
