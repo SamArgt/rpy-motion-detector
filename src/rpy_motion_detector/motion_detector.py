@@ -179,7 +179,7 @@ class MotionDetector:
             "gst-launch-1.0", "-e",
             "v4l2src", f"device={self.config.movie.device}",
             "!", "video/x-raw,framerate={}/1,width={},height={}".format(
-                self.cam_fps, self.cam_width, self.cam_height
+                int(self.cam_fps), int(self.cam_width), int(self.cam_height)
             ),
             "!", "videoconvert",
             "!", "x264enc", "speed-preset=ultrafast", "threads=1",
