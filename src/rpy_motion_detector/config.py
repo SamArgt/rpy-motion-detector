@@ -78,7 +78,7 @@ class MotionDetectorConfig:
             dirpath=config.get('picture', 'dirpath', fallback='/tmp')
         )
         self.event = EventConfig(
-            no_motion_timeout=config.getint('event', 'no_motion_timeout', fallback=5),
+            no_motion_timeout=config.getint('event', 'no_motion_timeout', fallback=20),
             event_gap=config.getint('event', 'event_gap', fallback=30),
             on_event_start=config.get('event', 'on_event_start', fallback=''),
             on_event_end=config.get('event', 'on_event_end', fallback=''),
