@@ -62,6 +62,18 @@ class MotionDetector:
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config.camera.height)
         self.cap.set(cv2.CAP_PROP_FPS, self.config.camera.fps)
 
+        # TEST ------------
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = os.path.join("./", f"test_{timestamp}.mp4")
+        self.video_writer2 = cv2.VideoWriter(
+            filename,
+            fourcc,
+            self.config.camera.fps,
+            (self.config.camera.width, self.config.camera.height),
+        )
+        # TEST ------------
+
         while True:
             ret, frame = self.cap.read()
             if not ret:
@@ -72,8 +84,6 @@ class MotionDetector:
             self.process_frame(frame)
 
     def process_frame(self, frame):
-        logger.debug("Processing frame for motion detection...")
-
         # Add the current frame to the buffer
         self.frame_buffer.append(frame.copy())
         if len(self.frame_buffer) > self.buffer_size:
@@ -91,6 +101,10 @@ class MotionDetector:
 
         # Dilate to fill gaps
         dilated = cv2.dilate(thresh, None, iterations=self.config.detection.dilate_iterations)
+
+        # TEST ------------
+        self.video_writer2.write(dilated)
+        # TEST ------------
 
         # Find contours
         contours, _ = cv2.findContours(
@@ -110,7 +124,6 @@ class MotionDetector:
             logger.debug("Motion detected!")
             self.handle_motion_detection(frame)
         else:
-            logger.debug("No motion detected.")
             if self.is_event_ongoing:
                 time_since_last_motion = (cv2.getTickCount() - self.last_motion_time) / cv2.getTickFrequency()
                 if time_since_last_motion > self.config.event.no_motion_timeout:
