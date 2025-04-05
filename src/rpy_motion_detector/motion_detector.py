@@ -1,5 +1,6 @@
 import logging
 import os
+import signal
 import datetime
 from dataclasses import dataclass
 import subprocess
@@ -219,6 +220,7 @@ class MotionDetector:
         if self.gst_process is not None:
             try:
                 # Terminate the GStreamer process
+                os.killpg(os.getpgid(self.gst_process.pid), signal.SIGTERM)
                 self.gst_process.kill()
                 self.gst_process.wait()
                 logger.info(f"GStreamer process stopped. Movie saved to: {self.movie_filename}")
