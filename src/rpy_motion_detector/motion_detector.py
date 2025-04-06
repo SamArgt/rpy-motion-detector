@@ -236,14 +236,19 @@ class MotionDetector:
         self.precapture_movie_filename = os.path.join(
             self.config.tmp_dir.dirpath, f"precapture_movie_{timestamp}.mp4"
         )
-        self.final_movie_filename = os.path.join(
-            self.config.movie.dirpath, f"final_movie_{timestamp}.mp4"
-        )
+        if self.config.movie.record_precapture:
+            self.final_movie_filename = os.path.join(
+                self.config.movie.dirpath, f"final_movie_{timestamp}.mp4"
+            )
+        else:
+            self.final_movie_filename = self.movie_filename
         # Record pre-capture frames in a separate thread
-        _ = threading.Thread(
-            target=self.record_precapture_frames,
-            args=(self.frame_buffer, self.precapture_movie_filename),
-        ).start()
+        if self.config.movie.record_precapture:
+            # Create a thread to record the pre-capture frames
+            _ = threading.Thread(
+                target=self.record_precapture_frames,
+                args=(self.frame_buffer, self.precapture_movie_filename),
+            ).start()
         # Record movie using GStreamer
         self.logger.debug("Starting GStreamer process...")
         gst_command = [
@@ -299,23 +304,25 @@ class MotionDetector:
 
     def on_movie_end_action(self, precapture_movie_filename: str, movie_filename: str, final_movie_name: str):
         # Concatenate the pre-capture and movie files
-        completed = self.concatenate_movies(precapture_movie_filename, movie_filename, final_movie_name)
-        if completed.returncode != 0:
-            self.logger.error(f"Error concatenating movies: {completed.stderr.decode()}")
-        else:
-            self.logger.info(f"Movies concatenated successfully: {final_movie_name}")
-            # Run the movie end command
-            completed = subprocess.run(
-                self.config.event.on_movie_end.format(filename=final_movie_name),
-                shell=True,
-                capture_output=True
-            )
+        if self.config.movie.record_precapture:
+            completed = self.concatenate_movies(precapture_movie_filename, movie_filename, final_movie_name)
             if completed.returncode != 0:
-                self.logger.error(
-                    f"Error executing movie end command: {completed.stderr.decode()}"
-                )
+                self.logger.error(f"Error concatenating movies: {completed.stderr.decode()}")
+                final_movie_name = movie_filename
             else:
-                self.logger.info(f"Movie end command was successful: {completed.stdout.decode()}")
+                self.logger.info(f"Movies concatenated successfully: {final_movie_name}")
+        # Run the movie end command
+        completed = subprocess.run(
+            self.config.event.on_movie_end.format(filename=final_movie_name),
+            shell=True,
+            capture_output=True
+        )
+        if completed.returncode != 0:
+            self.logger.error(
+                f"Error executing movie end command: {completed.stderr.decode()}"
+            )
+        else:
+            self.logger.info(f"Movie end command was successful: {completed.stdout.decode()}")
 
     def stop_movie_recording(self):
         self.logger.info("Stopping movie recording...")
