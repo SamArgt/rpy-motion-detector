@@ -175,10 +175,14 @@ class MotionDetector:
     def start_event(self, frame):
         self.logger.info("Starting event...")
         self.is_event_ongoing = True
-        res = os.system(self.config.event.on_event_start)
-        if res != 0:
+        completed = subprocess.run(
+            self.config.event.on_event_start,
+            shell=True,
+            capture_output=True
+        )
+        if completed != 0:
             self.logger.error(
-                f"Error executing event start command: {self.config.event.on_event_start}"
+                f"Error executing event start command: {completed.stderr.decode()}"
             )
         else:
             self.logger.info("Event start command was successfull.")
@@ -187,10 +191,14 @@ class MotionDetector:
     def stop_event(self):
         self.logger.info("Stopping event...")
         self.is_event_ongoing = False
-        res = os.system(self.config.event.on_event_end)
-        if res != 0:
+        completed = subprocess.run(
+            self.config.event.on_event_end,
+            shell=True,
+            capture_output=True
+        )
+        if completed != 0:
             self.logger.error(
-                f"Error executing event end command: {self.config.event.on_event_end}"
+                f"Error executing event end command: {completed.stderr.decode()}"
             )
         else:
             self.logger.info("Event end command was successfull.")
@@ -257,10 +265,14 @@ class MotionDetector:
             self.is_movie_recording = True
             self.movie_start_time = cv2.getTickCount()
             self.logger.info(f"GStreamer process started for recording: {self.movie_filename}")
-            res = os.system(self.config.event.on_movie_start)
-            if res != 0:
+            completed = subprocess.run(
+                self.config.event.on_movie_start.format(filename=self.final_movie_filename),
+                shell=True,
+                capture_output=True
+            )
+            if completed != 0:
                 self.logger.error(
-                    f"Error executing movie start command: {self.config.event.on_movie_start}"
+                    f"Error executing movie start command: {completed.stderr.decode()}"
                 )
             else:
                 self.logger.info("Movie start command was successful.")
@@ -292,7 +304,7 @@ class MotionDetector:
             self.logger.info(f"Movies concatenated successfully: {final_movie_name}")
             # Run the movie end command
             completed = subprocess.run(
-                self.config.event.on_movie_end,
+                self.config.event.on_movie_end.format(filename=final_movie_name),
                 shell=True,
                 capture_output=True
             )
@@ -329,10 +341,14 @@ class MotionDetector:
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = os.path.join(self.config.picture.dirpath, f"picture_{timestamp}.jpg")
         cv2.imwrite(filename, frame)
-        res = os.system(self.config.event.on_picture_save)
-        if res != 0:
+        completed = subprocess.run(
+            self.config.event.on_picture_save.format(filename=filename),
+            shell=True,
+            capture_output=True
+        )
+        if completed != 0:
             self.logger.error(
-                f"Error executing picture taken command: {self.config.event.on_picture_save}"
+                f"Error executing picture taken command: {completed.stderr.decode()}"
             )
         else:
             self.logger.info("Picture taken command was successfull.")
