@@ -102,5 +102,5 @@ class MotionDetectorConfig:
             file=config.get('log', 'file', fallback=None)
         )
         self.tmp_dir = TmpDirConfig(
-            dirpath=config.get('tmp_dir', 'dirpath', fallback='/tmp')
+            dirpath=config.get('tmp', 'dirpath', fallback='/tmp')
         )
