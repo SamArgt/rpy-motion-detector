@@ -180,7 +180,7 @@ class MotionDetector:
             shell=True,
             capture_output=True
         )
-        if completed != 0:
+        if completed.returncode != 0:
             self.logger.error(
                 f"Error executing event start command: {completed.stderr.decode()}"
             )
@@ -196,7 +196,7 @@ class MotionDetector:
             shell=True,
             capture_output=True
         )
-        if completed != 0:
+        if completed.returncode != 0:
             self.logger.error(
                 f"Error executing event end command: {completed.stderr.decode()}"
             )
@@ -270,7 +270,7 @@ class MotionDetector:
                 shell=True,
                 capture_output=True
             )
-            if completed != 0:
+            if completed.returncode != 0:
                 self.logger.error(
                     f"Error executing movie start command: {completed.stderr.decode()}"
                 )
@@ -346,7 +346,7 @@ class MotionDetector:
             shell=True,
             capture_output=True
         )
-        if completed != 0:
+        if completed.returncode != 0:
             self.logger.error(
                 f"Error executing picture taken command: {completed.stderr.decode()}"
             )
