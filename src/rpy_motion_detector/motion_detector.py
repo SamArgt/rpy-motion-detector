@@ -14,12 +14,13 @@ from .config import MotionDetectorConfig
 class MotionDetector:
     """Class to handle motion detection."""
 
-    def __init__(self, config_file: str, use_default=False):
+    def __init__(self, config_file: str, use_default=False, log_to_stdout=False):
         if not use_default:
             if not os.path.exists(config_file):
                 raise FileNotFoundError(f"Configuration file not found: {config_file}")
         self.config = MotionDetectorConfig(config_file)
-
+        if log_to_stdout:
+            self.config.log.file = None
         logging.basicConfig(
             filename=self.config.log.file,
             filemode="a",

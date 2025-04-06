@@ -14,5 +14,11 @@ if __name__ == "__main__":
         help="Dry run mode, do not start the motion detector",
         action="store_true",
     )
+    parser.add_argument(
+        "--log-to-stdout",
+        type=str,
+        help="Log to stdout instead of a file",
+        action="store_true",
+    )
     args = parser.parse_args()
-    run(args.config, args.dry_run)
+    run(args.config, args.dry_run, args.log_to_stdout)

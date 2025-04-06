@@ -2,8 +2,8 @@ from .motion_detector import MotionDetector
 import argparse
 
 
-def run(config_file: str, dry_run: bool = False):
-    detector = MotionDetector(config_file)
+def run(config_file: str, dry_run: bool = False, log_to_stdout: bool = False):
+    detector = MotionDetector(config_file, log_to_stdout=log_to_stdout)
     if dry_run:
         print("Dry run mode, not starting the motion detector.")
         return
@@ -23,5 +23,11 @@ if __name__ == "__main__":
         help="Dry run mode, do not start the motion detector",
         action="store_true",
     )
+    parser.add_argument(
+        "--log-to-stdout",
+        type=str,
+        help="Log to stdout instead of a file",
+        action="store_true",
+    )
     args = parser.parse_args()
-    run(args.config, args.dry_run)
+    run(args.config, args.dry_run, args.log_to_stdout)
