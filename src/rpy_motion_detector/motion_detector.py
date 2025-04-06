@@ -32,6 +32,7 @@ class MotionDetector:
         # create movie directory if it doesn't exist
         if not os.path.exists(self.config.movie.dirpath):
             os.makedirs(self.config.movie.dirpath)
+            os.makedirs(os.path.join(self.config.movie.dirpath, "tmp"))
             self.logger.debug(
                 "Created movie directory: %s", self.config.movie.dirpath)
 
@@ -212,9 +213,9 @@ class MotionDetector:
     def start_movie_recording(self):
         self.logger.info("Starting movie recording...")
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.movie_filename = os.path.join(self.config.movie.dirpath, f"movie_{timestamp}.mp4")
+        self.movie_filename = os.path.join(self.config.movie.dirpath, "tmp", f"movie_{timestamp}.mp4")
         self.precapture_movie_filename = os.path.join(
-            self.config.movie.dirpath, f"precapture_movie_{timestamp}.mp4"
+            self.config.movie.dirpath, "tmp", f"precapture_movie_{timestamp}.mp4"
         )
         self.final_movie_filename = os.path.join(
             self.config.movie.dirpath, f"final_movie_{timestamp}.mp4"
