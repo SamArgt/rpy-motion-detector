@@ -265,7 +265,7 @@ class MotionDetector:
             self.is_movie_recording = True
             self.movie_start_time = cv2.getTickCount()
             self.logger.info(f"GStreamer process started for recording: {self.movie_filename}")
-            movie_start_command = self.config.event.on_movie_start.format(filename=self.movie_filename)
+            movie_start_command = self.config.event.on_movie_start.format(filename=self.final_movie_filename)
             self.logger.debug(f"Running movie start command: {movie_start_command}")
             completed = subprocess.run(
                 movie_start_command,
