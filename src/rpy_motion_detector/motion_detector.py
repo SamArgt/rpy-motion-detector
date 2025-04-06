@@ -31,17 +31,32 @@ class MotionDetector:
         self.logger.debug("MotionDetector initialized with config: %s", self.config)
 
         # create movie directory if it doesn't exist
-        if not os.path.exists(self.config.movie.dirpath):
+        try:
             os.makedirs(self.config.movie.dirpath)
-            os.makedirs(os.path.join(self.config.movie.dirpath, "tmp"))
             self.logger.debug(
                 "Created movie directory: %s", self.config.movie.dirpath)
+        except FileExistsError:
+            pass
+        try:
+            os.makedirs(os.path.join(self.config.movie.dirpath, "tmp"))
+            self.logger.debug(
+                "Created tmp directory: %s", os.path.join(self.config.movie.dirpath, "tmp"))
+        except FileExistsError:
+            pass
 
         # create picture directory if it doesn't exist
-        if not os.path.exists(self.config.picture.dirpath):
+        try:
             os.makedirs(self.config.picture.dirpath)
             self.logger.debug(
                 "Created picture directory: %s", self.config.picture.dirpath)
+        except FileExistsError:
+            pass
+        try:
+            os.makedirs(os.path.join(self.config.picture.dirpath, "tmp"))
+            self.logger.debug(
+                "Created tmp directory: %s", os.path.join(self.config.picture.dirpath, "tmp"))
+        except FileExistsError:
+            pass
 
         # Initialize variables
         self.cap = None
