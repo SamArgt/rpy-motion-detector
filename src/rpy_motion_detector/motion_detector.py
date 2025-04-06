@@ -258,7 +258,7 @@ class MotionDetector:
         self.logger.info("Concatenating movies {} and {} to {}".format(movie1, movie2, output_movie))
         # Use ffmpeg to concatenate the movies
         # create a temporary file to store the list of files
-        file_list = os.path.join(self.config.movie.dirpath, 'file_list.txt')
+        file_list = os.path.join(self.config.movie.dirpath, 'tmp', 'file_list.txt')
         with open(file_list, 'wb') as temp_file:
             temp_file.write(f"file '{movie1}'\n".encode())
             temp_file.write(f"file '{movie2}'\n".encode())
