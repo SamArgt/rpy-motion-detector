@@ -112,7 +112,7 @@ class MotionDetector:
             dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
         # detect motion after a soak time period
-        if time.time() - self.start_time > 5:
+        if time.time() - self.start_time > 10:
             self.detect_motion(frame, contours)
 
     def detect_motion(self, frame, contours):
