@@ -61,6 +61,7 @@ class MotionDetectorConfig:
     picture: PictureConfig
     event: EventConfig
     log: LogConfig
+    tmp_dir: TmpDirConfig
 
     def __init__(self, config_file: str):
         config = configparser.ConfigParser()
