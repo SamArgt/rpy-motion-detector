@@ -54,21 +54,35 @@ class MotionDetector:
             pass
 
         # Initialize variables
+        # Opencv
         self.cap = None
         self.background_subtractor = cv2.bgsegm.createBackgroundSubtractorMOG(
             history=self.config.detection.background_substractor_history,
             nmixtures=self.config.detection.threshold,
             backgroundRatio=0.7,
         )
+        # motion variables
         self.last_motion_time = 0
         self.is_event_ongoing = False
+        # movie variables
         self.is_movie_recording = False
         self.gst_process = None
         self.movie_start_time = 0
-        self.movie_filename = ""
-
+        self.movie_filename = None
+        self.precapture_movie_filename = None
+        self.final_movie_filename = None
         # Pre-motion buffer variables
         self.frame_buffer = []
+
+    def __del__(self):
+        if self.cap is not None:
+            self.cap.release()
+        if self.gst_process is not None:
+            os.killpg(os.getpgid(self.gst_process.pid), signal.SIGINT)
+            self.gst_process.wait()
+        cv2.destroyAllWindows()
+        self.logger.info("MotionDetector stopped.")
+        del self
 
     def start(self):
         self.logger.debug("Starting motion detection...")
