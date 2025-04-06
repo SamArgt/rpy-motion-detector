@@ -37,13 +37,6 @@ class MotionDetector:
                 "Created movie directory: %s", self.config.movie.dirpath)
         except FileExistsError:
             pass
-        try:
-            os.makedirs(os.path.join(self.config.movie.dirpath, "tmp"))
-            self.logger.debug(
-                "Created tmp directory: %s", os.path.join(self.config.movie.dirpath, "tmp"))
-        except FileExistsError:
-            pass
-
         # create picture directory if it doesn't exist
         try:
             os.makedirs(self.config.picture.dirpath)
@@ -51,10 +44,12 @@ class MotionDetector:
                 "Created picture directory: %s", self.config.picture.dirpath)
         except FileExistsError:
             pass
+
+        # create tmp directory if it doesn't exist
         try:
-            os.makedirs(os.path.join(self.config.picture.dirpath, "tmp"))
+            os.makedirs(self.config.tmp_dir.dirpath, 'tmp')
             self.logger.debug(
-                "Created tmp directory: %s", os.path.join(self.config.picture.dirpath, "tmp"))
+                "Created tmp directory: %s", self.config.tmp_dir)
         except FileExistsError:
             pass
 
@@ -229,9 +224,9 @@ class MotionDetector:
     def start_movie_recording(self):
         self.logger.info("Starting movie recording...")
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.movie_filename = os.path.join(self.config.movie.dirpath, "tmp", f"movie_{timestamp}.mp4")
+        self.movie_filename = os.path.join(self.config.tmp_dir.dirpath, f"movie_{timestamp}.mp4")
         self.precapture_movie_filename = os.path.join(
-            self.config.movie.dirpath, "tmp", f"precapture_movie_{timestamp}.mp4"
+            self.config.tmp_dir.dirpath, f"precapture_movie_{timestamp}.mp4"
         )
         self.final_movie_filename = os.path.join(
             self.config.movie.dirpath, f"final_movie_{timestamp}.mp4"
@@ -274,7 +269,7 @@ class MotionDetector:
         self.logger.info("Concatenating movies {} and {} to {}".format(movie1, movie2, output_movie))
         # Use ffmpeg to concatenate the movies
         # create a temporary file to store the list of files
-        file_list = os.path.join(self.config.movie.dirpath, 'tmp', 'file_list.txt')
+        file_list = os.path.join(self.config.tmp_dir.dirpath, 'file_list.txt')
         with open(file_list, 'wb') as temp_file:
             temp_file.write(f"file '{movie1}'\n".encode())
             temp_file.write(f"file '{movie2}'\n".encode())

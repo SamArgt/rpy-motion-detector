@@ -49,6 +49,11 @@ class EventConfig:
 
 
 @dataclass
+class TmpDirConfig:
+    dirpath: str
+
+
+@dataclass
 class MotionDetectorConfig:
     camera: CameraConfig
     detection: DetectionConfig
@@ -94,4 +99,7 @@ class MotionDetectorConfig:
         self.log = LogConfig(
             level=config.get('log', 'level', fallback='INFO'),
             file=config.get('log', 'file', fallback=None)
+        )
+        self.tmp_dir = TmpDirConfig(
+            dirpath=config.get('tmp_dir', 'dirpath', fallback='/tmp')
         )
