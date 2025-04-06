@@ -47,7 +47,7 @@ class MotionDetector:
 
         # create tmp directory if it doesn't exist
         try:
-            os.makedirs(self.config.tmp_dir.dirpath, 'tmp')
+            os.makedirs(self.config.tmp_dir.dirpath)
             self.logger.debug(
                 "Created tmp directory: %s", self.config.tmp_dir)
         except FileExistsError:
