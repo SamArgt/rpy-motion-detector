@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import subprocess
 import cv2
 import threading
+import time
 from .config import MotionDetectorConfig
 
 
@@ -59,6 +60,7 @@ class MotionDetector:
 
     def start(self):
         self.logger.debug("Starting motion detection...")
+        self.start_time = time.time()
         self.cap = cv2.VideoCapture(self.config.camera.device)
         if not self.cap.isOpened():
             self.logger.error(
@@ -109,7 +111,11 @@ class MotionDetector:
         contours, _ = cv2.findContours(
             dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
+        # detect motion after a soak time period
+        if time.time() - self.start_time > 5:
+            self.detect_motion(frame, contours)
 
+    def detect_motion(self, frame, contours):
         motion_detected = False
         for contour in contours:
             area = cv2.contourArea(contour)
@@ -130,7 +136,7 @@ class MotionDetector:
                     self.stop_event()
                     self.stop_movie_recording()
 
-        # Write frame to video file if recording
+        # Check if the movie recording should be stopped or restarted
         if (
             self.is_event_ongoing
             and self.is_movie_recording
