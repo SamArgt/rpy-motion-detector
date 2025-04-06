@@ -185,7 +185,7 @@ class MotionDetector:
                 f"Error executing event start command: {completed.stderr.decode()}"
             )
         else:
-            self.logger.info("Event start command was successfull.")
+            self.logger.info(f"Event start command was successfull: {completed.stdout.decode()}")
         self.take_picture(frame)
 
     def stop_event(self):
@@ -201,7 +201,7 @@ class MotionDetector:
                 f"Error executing event end command: {completed.stderr.decode()}"
             )
         else:
-            self.logger.info("Event end command was successfull.")
+            self.logger.info(f"Event end command was successfull: {completed.stdout.decode()}")
 
     def record_precapture_frames(self, frame_buffer: list, movie_filename: str):
         self.logger.info("Recording pre-capture frames to %s", {movie_filename})
@@ -277,7 +277,7 @@ class MotionDetector:
                     f"Error executing movie start command: {completed.stderr.decode()}"
                 )
             else:
-                self.logger.info("Movie start command was successful.")
+                self.logger.info(f"Movie start command was successful: {completed.stdout.decode()}")
 
     def concatenate_movies(self, movie1: str, movie2: str, output_movie: str) -> subprocess.CompletedProcess:
         self.logger.info("Concatenating movies {} and {} to {}".format(movie1, movie2, output_movie))
@@ -315,7 +315,7 @@ class MotionDetector:
                     f"Error executing movie end command: {completed.stderr.decode()}"
                 )
             else:
-                self.logger.info("Movie end command was successful.")
+                self.logger.info(f"Movie end command was successful: {completed.stdout.decode()}")
 
     def stop_movie_recording(self):
         self.logger.info("Stopping movie recording...")
@@ -343,8 +343,10 @@ class MotionDetector:
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = os.path.join(self.config.picture.dirpath, f"picture_{timestamp}.jpg")
         cv2.imwrite(filename, frame)
+        picture_command = self.config.event.on_picture_save.format(filename=filename)
+        self.logger.debug(f"Running picture command: {picture_command}")
         completed = subprocess.run(
-            self.config.event.on_picture_save.format(filename=filename),
+            picture_command,
             shell=True,
             capture_output=True
         )
@@ -353,4 +355,4 @@ class MotionDetector:
                 f"Error executing picture taken command: {completed.stderr.decode()}"
             )
         else:
-            self.logger.info("Picture taken command was successfull.")
+            self.logger.info(f"Picture taken command was successfull: {completed.stdout.decode()}")
