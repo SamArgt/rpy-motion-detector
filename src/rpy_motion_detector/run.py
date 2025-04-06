@@ -24,9 +24,9 @@ if __name__ == "__main__":
         action="store_true",
     )
     parser.add_argument(
-        "--log-to-stdout",
+        "--stdout",
         help="Log to stdout instead of a file",
         action="store_true",
     )
     args = parser.parse_args()
-    run(args.config, args.dry_run, args.log_to_stdout)
+    run(args.config, args.dry_run, args.stdout)
