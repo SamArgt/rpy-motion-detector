@@ -232,15 +232,17 @@ class MotionDetector:
     def start_movie_recording(self):
         self.logger.info("Starting movie recording...")
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.movie_filename = os.path.join(self.config.tmp_dir.dirpath, f"movie_{timestamp}.mp4")
-        self.precapture_movie_filename = os.path.join(
-            self.config.tmp_dir.dirpath, f"precapture_movie_{timestamp}.mp4"
-        )
         if self.config.movie.record_precapture:
+            self.movie_filename = os.path.join(self.config.tmp_dir.dirpath, f"movie_{timestamp}.mp4")
+            self.precapture_movie_filename = os.path.join(
+                self.config.tmp_dir.dirpath, f"precapture_movie_{timestamp}.mp4"
+            )
             self.final_movie_filename = os.path.join(
                 self.config.movie.dirpath, f"final_movie_{timestamp}.mp4"
             )
         else:
+            self.movie_filename = os.path.join(self.config.movie.dirpath, f"movie_{timestamp}.mp4")
+            self.precapture_movie_filename = None
             self.final_movie_filename = self.movie_filename
         # Record pre-capture frames in a separate thread
         if self.config.movie.record_precapture:
