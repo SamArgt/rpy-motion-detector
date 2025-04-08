@@ -6,7 +6,7 @@ import sys
 
 class SignalHandler:
 
-    def __init__(self, resources):
+    def __init__(self, resources: list):
         self.resources = resources
 
     def handle_signal(self, signum, frame):
@@ -18,7 +18,7 @@ class SignalHandler:
 
 def run(config_file: str, dry_run: bool = False, log_to_stdout: bool = False):
     detector = MotionDetector(config_file, log_to_stdout=log_to_stdout)
-    signal_handler = SignalHandler(detector)
+    signal_handler = SignalHandler([detector])
     # Register the signal handler
     signal.signal(signal.SIGINT, signal_handler.handle_signal)
     signal.signal(signal.SIGTERM, signal_handler.handle_signal)
