@@ -275,6 +275,30 @@ class MotionDetector:
             "--fps", str(int(self.cam_fps)),
             "--output-file", self.movie_filename
         ]
+        # gst-launch-1.0 -e \
+        #     v4l2src device=$DEVICE \
+        #     ! video/x-raw,framerate=$FPS/1,width=$WIDTH,height=$HEIGHT \
+        #     ! videoconvert \
+        #     ! clockoverlay valignment=bottom halignment=right font-desc="Sans, 18" xpad=5 ypad=5 \
+        #     ! x264enc speed-preset=ultrafast tune=zerolatency \
+        #     ! mp4mux \
+        #     ! queue \
+        #     ! filesink location=$OUTPUT_FILE
+        gst_command = [
+            "gst-launch-1.0",
+            "-e",
+            "v4l2src",
+            "device={}".format(self.config.movie.device),
+            "!", "video/x-raw,framerate={}/1,width={},height={}".format(
+                int(self.cam_fps), int(self.cam_width), int(self.cam_height)
+            ),
+            "!", "videoconvert",
+            "!", "clockoverlay", "valignment=bottom", "halignment=right", "font-desc=\"Sans, 14\"", "xpad=5", "ypad=5",
+            "!", "x264enc", "speed-preset=ultrafast", "tune=zerolatency",
+            "!", "mp4mux",
+            "!", "queue",
+            "!", "filesink", "location={}".format(self.movie_filename),
+        ]
         gst_command_printed = " ".join(gst_command)
         self.logger.debug(f"GStreamer command: {gst_command_printed}")
         # Start the GStreamer process

@@ -1,9 +1,30 @@
 from .motion_detector import MotionDetector
 import argparse
+import signal
+import sys
+
+
+class SignalHandler:
+
+    def __init__(self, resources):
+        self.resources = resources
+
+    def handle_signal(self, signum, frame):
+        sys.stdout.write(f"Received signal {signum}, cleaning up...\n")
+        for resource in self.resources:
+            del resource
+        sys.exit(0)
 
 
 def run(config_file: str, dry_run: bool = False, log_to_stdout: bool = False):
     detector = MotionDetector(config_file, log_to_stdout=log_to_stdout)
+    signal_handler = SignalHandler(detector)
+    # Register the signal handler
+    signal.signal(signal.SIGINT, signal_handler.handle_signal)
+    signal.signal(signal.SIGTERM, signal_handler.handle_signal)
+    signal.signal(signal.SIGQUIT, signal_handler.handle_signal)
+    signal.signal(signal.SIGHUP, signal_handler.handle_signal)
+    # Start the main loop
     if dry_run:
         print("Dry run mode, not starting the motion detector.")
         return
