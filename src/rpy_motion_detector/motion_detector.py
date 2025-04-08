@@ -75,13 +75,17 @@ class MotionDetector:
         self.frame_buffer = []
 
     def __del__(self):
+        self.logger.warning("Cleaning up MotionDetector...")
         if self.cap is not None:
             self.cap.release()
+            self.logger.debug("Released video capture.")
         if self.gst_process is not None:
             os.killpg(os.getpgid(self.gst_process.pid), signal.SIGINT)
             self.gst_process.wait()
+            self.logger.debug("Released GStreamer process.")
         cv2.destroyAllWindows()
-        self.logger.info("MotionDetector stopped.")
+        self.logger.debug("Destroyed all OpenCV windows.")
+        self.logger.warning("MotionDetector is stopped.")
         del self
 
     def start(self):
@@ -267,23 +271,6 @@ class MotionDetector:
             ).start()
         # Record movie using GStreamer
         self.logger.debug("Starting GStreamer process...")
-        gst_command = [
-            self.config.movie.gstreamer_exec_file,
-            "--device", self.config.movie.device,
-            "--width", str(int(self.cam_width)),
-            "--height", str(int(self.cam_height)),
-            "--fps", str(int(self.cam_fps)),
-            "--output-file", self.movie_filename
-        ]
-        # gst-launch-1.0 -e \
-        #     v4l2src device=$DEVICE \
-        #     ! video/x-raw,framerate=$FPS/1,width=$WIDTH,height=$HEIGHT \
-        #     ! videoconvert \
-        #     ! clockoverlay valignment=bottom halignment=right font-desc="Sans, 18" xpad=5 ypad=5 \
-        #     ! x264enc speed-preset=ultrafast tune=zerolatency \
-        #     ! mp4mux \
-        #     ! queue \
-        #     ! filesink location=$OUTPUT_FILE
         gst_command = [
             "gst-launch-1.0",
             "-e",

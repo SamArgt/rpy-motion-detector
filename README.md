@@ -23,6 +23,29 @@ It is heavily inspired by [motionplus](https://github.com/Motion-Project/motionp
   - `opencv`
   - `pillow`
 
+### Set up virtual devices
+
+```bash
+sudo vim /etc/modprobe.d/v4l2loopback.conf
+>> options v4l2loopback video_nr=40,50 card_label="Motion,Movie"
+```
+
+### Stream to virtual devices
+```bash
+WIDTH=640
+HEIGHT=480
+FPS=30
+DEV1=/dev/video40
+DEV2=/dev/video50
+gst-launch-1.0 -e \
+  libcamerasrc \
+    ! video/x-raw,width=$WIDTH,height=$HEIGHT,framerate=$FPS/1 \
+    ! videoconvert \
+    ! tee name=t \
+    t. ! queue ! v4l2sink device=$DEV1 \
+    t. ! queue ! v4l2sink device=$DEV2
+```
+
 ## Installation
 
 1. Clone the repository:
