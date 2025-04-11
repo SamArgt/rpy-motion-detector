@@ -63,7 +63,7 @@ rpy_motion_detector --config <CONFIG_FILE>
 ```
 
 ## Configuration
-The application is configured using a TOML file located at [default.toml](src/rpy_motion_detector/config/default.toml). Below is an example configuration:
+The application is configured using a TOML file located at [default.toml](./config/default.ini). Below is an example configuration:
 
 Key Configuration Options:
 
