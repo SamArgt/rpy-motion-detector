@@ -15,9 +15,12 @@ if __name__ == "__main__":
         action="store_true",
     )
     parser.add_argument(
-        "--stdout",
-        help="Log to stdout instead of a file",
-        action="store_true",
+        "--log-output",
+        help=(
+            "Specify a file path for logging. If not provided, logs will be printed to stdout "
+            "unless configured otherwise."
+        ),
+        default=None,
     )
     args = parser.parse_args()
-    run(args.config, args.dry_run, args.stdout)
+    run(args.config, args.dry_run, args.log_output)

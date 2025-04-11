@@ -16,8 +16,8 @@ class SignalHandler:
         sys.exit(0)
 
 
-def run(config_file: str, dry_run: bool = False, log_to_stdout: bool = False):
-    detector = MotionDetector(config_file, log_to_stdout=log_to_stdout)
+def run(config_file: str, dry_run: bool = False, log_output: str = None):
+    detector = MotionDetector(config_file, log_output=log_output)
     signal_handler = SignalHandler([detector])
     # Register the signal handler
     signal.signal(signal.SIGINT, signal_handler.handle_signal)
@@ -45,9 +45,12 @@ if __name__ == "__main__":
         action="store_true",
     )
     parser.add_argument(
-        "--stdout",
-        help="Log to stdout instead of a file",
-        action="store_true",
+        "--log-output",
+        help=(
+            "Specify a file path for logging. If not provided, logs will be printed to stdout "
+            "unless configured otherwise."
+        ),
+        default=None,
     )
     args = parser.parse_args()
-    run(args.config, args.dry_run, args.stdout)
+    run(args.config, args.dry_run, args.log_output)

@@ -10,7 +10,7 @@ It is heavily inspired by [motionplus](https://github.com/Motion-Project/motionp
 - Captures pictures and records videos when motion is detected.
 - Pre-capture buffering to include frames before motion is detected.
 - Configurable event hooks for custom actions (e.g., notifications).
-- Easy-to-use configuration via a TOML file.
+- Easy-to-use configuration via a INI file.
 
 ## Requirements
 
@@ -24,8 +24,10 @@ It is heavily inspired by [motionplus](https://github.com/Motion-Project/motionp
 ### Set up virtual devices
 
 ```bash
+sudo apt-get install v4l2loopback-dkms
 sudo vim /etc/modprobe.d/v4l2loopback.conf
 >> options v4l2loopback video_nr=40,50 card_label="Motion,Movie"
+sudo modprobe v4l2loopback
 ```
 
 ### Stream to virtual devices
@@ -40,8 +42,8 @@ gst-launch-1.0 -e \
   ! video/x-raw,width=$WIDTH,height=$HEIGHT,framerate=$FPS/1,format=NV12 \
   ! videoconvert \
   ! tee name=t \
-  t. ! queue leaky=downstream max-size-buffers=2 ! v4l2sink device=$DEV1 sync=false \
-  t. ! queue leaky=downstream max-size-buffers=2 ! v4l2sink device=$DEV2 sync=false
+  t. ! queue ! v4l2sink device=$DEV1 sync=false \
+  t. ! queue ! v4l2sink device=$DEV2 sync=false
 ```
 
 ## Installation
@@ -59,11 +61,11 @@ pipx install rpy_motion_detector
 
 3. Run
 ```bash
-rpy_motion_detector --config <CONFIG_FILE>
+rpy_motion_detector --config <CONFIG_FILE> [--log-output <LOG_FILE>] [ --dry-run]
 ```
 
 ## Configuration
-The application is configured using a TOML file located at [default.toml](./config/default.ini). Below is an example configuration:
+The application is configured using a .ini file located at [default.ini](./config/default.ini). Below is an example configuration:
 
 Key Configuration Options:
 
@@ -75,9 +77,11 @@ Key Configuration Options:
     - `dirpath`: Directory where recorded videos will be saved.
     - `precapture_seconds`: Number of seconds to include in the video before motion is detected.
     - `max_record_seconds`: Maximum duration (in seconds) of a single video recording.
-- Event Hooks
+- Event Hooks & Behaviour
     - `on_event_start`: Command to execute when motion is first detected.
     - `on_event_end`: Command to execute when motion stops.
     - `on_movie_start`: Command to execute when video recording begins.
     - `on_movie_end`: Command to execute when video recording ends.
-    - `on_picture_taken`: Command to execute when a picture is captured.
+    - `on_picture_save`: Command to execute when a picture is captured.
+    - `no_motion_timeout`: Number of seconds of no motion to end an event.
+    - `event_gap`: Minimum number of seconds between 2 events.
