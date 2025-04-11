@@ -19,7 +19,6 @@ license = "MIT"
 license-files = ["LICEN[CS]E*"]
 dependencies = [
     "opencv-python",
-    "pillow",
 ]
 
 [project.scripts]

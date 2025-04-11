@@ -227,7 +227,7 @@ class MotionDetector:
             f"appsrc ! "
             f"videoconvert ! "
             f"textoverlay text=TRIGGER valignment=top halignment=left "
-            f"font-desc=\"Sans, 18\" xpad=5 ypad=5 ! "
+            f"font-desc=\"Sans, 14\" xpad=5 ypad=5 ! "
             f"x264enc speed-preset=ultrafast tune=zerolatency ! "
             f"mp4mux ! "
             f"filesink location={movie_filename}"
@@ -276,11 +276,12 @@ class MotionDetector:
             "-e",
             "v4l2src",
             "device={}".format(self.config.movie.device),
-            "!", "video/x-raw,framerate={}/1,width={},height={}".format(
+            "!", "video/x-raw,framerate={}/1,width={},height={},format=NV12".format(
                 int(self.cam_fps), int(self.cam_width), int(self.cam_height)
             ),
             "!", "videoconvert",
-            "!", "clockoverlay", "valignment=bottom", "halignment=right", "font-desc=\"Sans, 14\"", "xpad=5", "ypad=5",
+            "!", "clockoverlay", "valignment=bottom", "halignment=right", "font-desc=\"Sans, 10\"",
+            "time-format=\"%Y-%m-%d %H:%M:%S\"", "xpad=5", "ypad=5",
             "!", "x264enc", "speed-preset=ultrafast", "tune=zerolatency",
             "!", "mp4mux",
             "!", "queue",

@@ -19,9 +19,7 @@ It is heavily inspired by [motionplus](https://github.com/Motion-Project/motionp
 - FFmpeg installed
 - Python 3.8 or higher.
 - Dependencies:
-  - `picamera2`
   - `opencv`
-  - `pillow`
 
 ### Set up virtual devices
 
@@ -38,12 +36,12 @@ FPS=30
 DEV1=/dev/video40
 DEV2=/dev/video50
 gst-launch-1.0 -e \
-  libcamerasrc \
-    ! video/x-raw,width=$WIDTH,height=$HEIGHT,framerate=$FPS/1 \
-    ! videoconvert \
-    ! tee name=t \
-    t. ! queue ! v4l2sink device=$DEV1 \
-    t. ! queue ! v4l2sink device=$DEV2
+ libcamerasrc \
+  ! video/x-raw,width=$WIDTH,height=$HEIGHT,framerate=$FPS/1,format=NV12 \
+  ! videoconvert \
+  ! tee name=t \
+  t. ! queue leaky=downstream max-size-buffers=2 ! v4l2sink device=$DEV1 sync=false \
+  t. ! queue leaky=downstream max-size-buffers=2 ! v4l2sink device=$DEV2 sync=false
 ```
 
 ## Installation
