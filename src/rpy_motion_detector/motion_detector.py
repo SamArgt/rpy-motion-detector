@@ -1,3 +1,4 @@
+from typing import Tuple
 import logging
 import os
 import signal
@@ -314,10 +315,20 @@ class MotionDetector:
             else:
                 self.logger.info(f"Movie start command was successful: {completed.stdout.decode()}")
 
-    def concatenate_movies(self, movie1: str, movie2: str, output_movie: str) -> subprocess.CompletedProcess:
+    def concatenate_movies(self, movie1: str, movie2: str, output_movie: str) -> Tuple[bool, str]:
         self.logger.info("Concatenating movies {} and {} to {}".format(movie1, movie2, output_movie))
+        # Check if precapture movie exists. Wait at most 60 seconds for it to be created
+        movie1_exists = False
+        for _ in range(60):
+            if os.path.exists(movie1):
+                movie1_exists = True
+                break
+            time.sleep(1)
         # Use ffmpeg to concatenate the movies
         # create a temporary file to store the list of files
+        if not movie1_exists:
+            self.logger.warning("Pre-capture movie not found, skipping concatenation.")
+            return (False, "Pre-capture movie not found.")
         file_list = os.path.join(self.config.tmp_dir.dirpath, 'file_list.txt')
         with open(file_list, 'wb') as temp_file:
             temp_file.write(f"file '{movie1}'\n".encode())
@@ -330,14 +341,18 @@ class MotionDetector:
             capture_output=True,
             shell=True
         )
-        return completed
+        return (completed.returncode == 0, completed.stderr.decode())
 
     def on_movie_end_action(self, precapture_movie_filename: str, movie_filename: str, final_movie_name: str):
         # Concatenate the pre-capture and movie files
         if self.config.movie.record_precapture:
-            completed = self.concatenate_movies(precapture_movie_filename, movie_filename, final_movie_name)
-            if completed.returncode != 0:
-                self.logger.error(f"Error concatenating movies: {completed.stderr.decode()}")
+            success, error_message = self.concatenate_movies(
+                precapture_movie_filename,
+                movie_filename,
+                final_movie_name
+            )
+            if success:
+                self.logger.error(f"Error concatenating movies: {error_message}")
                 final_movie_name = movie_filename
             else:
                 self.logger.info(f"Movies concatenated successfully: {final_movie_name}")
