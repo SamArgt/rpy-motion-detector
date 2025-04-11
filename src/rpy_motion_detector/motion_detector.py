@@ -74,6 +74,7 @@ class MotionDetector:
         self.final_movie_filename = None
         # Pre-motion buffer variables
         self.frame_buffer = []
+        self.is_precapture_recorded = {}
 
     def __del__(self):
         self.logger.warning("Cleaning up MotionDetector...")
@@ -248,6 +249,7 @@ class MotionDetector:
             for _ in range(4):
                 video_writer.write(frame)
         video_writer.release()
+        self.is_precapture_recorded[movie_filename] = True
         self.logger.info("Pre-capture frames recorded.")
 
     def start_movie_recording(self):
@@ -320,7 +322,7 @@ class MotionDetector:
         # Check if precapture movie exists. Wait at most 60 seconds for it to be created
         movie1_exists = False
         for _ in range(60):
-            if os.path.exists(movie1):
+            if self.is_precapture_recorded.get(movie1):
                 movie1_exists = True
                 break
             time.sleep(1)
