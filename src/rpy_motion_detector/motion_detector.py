@@ -343,6 +343,7 @@ class MotionDetector:
             capture_output=True,
             shell=True
         )
+        # TODO: investigate why ffmpeg returns 1 even if the command succeeds
         return (completed.returncode == 0, completed.stderr.decode())
 
     def on_movie_end_action(self, precapture_movie_filename: str, movie_filename: str, final_movie_name: str):
