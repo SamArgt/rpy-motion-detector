@@ -26,15 +26,15 @@ def run(config_file: str, dry_run: bool = False, log_output: str = None):
     if not os.path.exists(config_file):
         logger.error(f"Configuration file {config_file} does not exist.")
         sys.exit(1)
-    logger.info("Loading configuration file: {}".format(config_file))
     config = MotionDetectorConfig(config_file)
 
     logging.basicConfig(
-            filename=log_output,
-            filemode="a",
-            level=config.log.level,
-            format="%(asctime)s - %(levelname)s - %(message)s",
-        )
+        filename=log_output,
+        filemode="a",
+        level=config.log.level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+    logger.info("Configuration file {} loaded.".format(config_file))
 
     detector = MotionDetector(config)
     signal_handler = SignalHandler([detector])
