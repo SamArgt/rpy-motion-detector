@@ -12,36 +12,28 @@ import shutil
 from .config import MotionDetectorConfig
 
 
+logger = logging.getLogger(__name__)
+
+
 @dataclass
 class MotionDetector:
     """Class to handle motion detection."""
 
-    def __init__(self, config_file: str, use_default=False, log_output=None):
-        if not use_default:
-            if not os.path.exists(config_file):
-                raise FileNotFoundError(f"Configuration file not found: {config_file}")
-        self.config = MotionDetectorConfig(config_file)
-        if self.config.log.file is not None:
-            log_output = self.config.log.file
-        logging.basicConfig(
-            filename=log_output,
-            filemode="a",
-            level=self.config.log.level,
-            format="%(asctime)s - %(levelname)s - %(message)s",
-        )
-        self.logger = logging.getLogger(__name__)
-        self.logger.debug("MotionDetector initialized with config: %s", self.config)
+    def __init__(self, config: MotionDetectorConfig, use_default=False):
+
+        self.config = config
+        logger.debug("MotionDetector initialized with config: %s", self.config)
 
         # create movie directory if it doesn't exist
         try:
             os.makedirs(self.config.movie.dirpath)
-            self.logger.debug("Created movie directory: %s", self.config.movie.dirpath)
+            logger.debug("Created movie directory: %s", self.config.movie.dirpath)
         except FileExistsError:
             pass
         # create picture directory if it doesn't exist
         try:
             os.makedirs(self.config.picture.dirpath)
-            self.logger.debug(
+            logger.debug(
                 "Created picture directory: %s", self.config.picture.dirpath
             )
         except FileExistsError:
@@ -50,7 +42,7 @@ class MotionDetector:
         # create tmp directory if it doesn't exist
         try:
             os.makedirs(self.config.tmp_dir.dirpath)
-            self.logger.debug("Created tmp directory: %s", self.config.tmp_dir)
+            logger.debug("Created tmp directory: %s", self.config.tmp_dir)
         except FileExistsError:
             pass
 
@@ -77,40 +69,40 @@ class MotionDetector:
         self.is_precapture_recorded = {}
 
     def __del__(self):
-        self.logger.warning("Cleaning up MotionDetector...")
+        logger.warning("Cleaning up MotionDetector...")
         if self.cap is not None:
             self.cap.release()
-            self.logger.info("Released video capture.")
+            logger.info("Released video capture.")
         if self.gst_process is not None:
             os.killpg(os.getpgid(self.gst_process.pid), signal.SIGINT)
             self.gst_process.wait()
-            self.logger.info("Released GStreamer process.")
+            logger.info("Released GStreamer process.")
         # Cleanup tmp directory
         if os.path.exists(self.config.tmp_dir.dirpath):
-            self.logger.info("Cleaning up tmp directory...")
+            logger.info("Cleaning up tmp directory...")
             for filename in os.listdir(self.config.tmp_dir.dirpath):
                 file_path = os.path.join(self.config.tmp_dir.dirpath, filename)
                 try:
                     if os.path.isfile(file_path) or os.path.islink(file_path):
                         os.unlink(file_path)
-                        self.logger.debug("Deleted file: %s", file_path)
+                        logger.debug("Deleted file: %s", file_path)
                     elif os.path.isdir(file_path):
                         shutil.rmtree(file_path)
-                        self.logger.debug("Deleted directory: %s", file_path)
+                        logger.debug("Deleted directory: %s", file_path)
                 except Exception as e:
-                    self.logger.error(f"Failed to delete {file_path}. Reason: {e}")
-            self.logger.debug("Deleted tmp directory content.")
+                    logger.error(f"Failed to delete {file_path}. Reason: {e}")
+            logger.debug("Deleted tmp directory content.")
         cv2.destroyAllWindows()
-        self.logger.info("Destroyed all OpenCV windows.")
-        self.logger.warning("MotionDetector is stopped.")
+        logger.info("Destroyed all OpenCV windows.")
+        logger.warning("MotionDetector is stopped.")
         del self
 
     def start(self):
-        self.logger.debug("Starting motion detection...")
+        logger.debug("Starting motion detection...")
         self.start_time = time.time()
         self.cap = cv2.VideoCapture(self.config.camera.device)
         if not self.cap.isOpened():
-            self.logger.error(
+            logger.error(
                 f"Error opening video stream or file: {self.config.camera.device}"
             )
             return
@@ -118,7 +110,7 @@ class MotionDetector:
         self.cam_width = self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)
         self.cam_height = self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
         self.cam_fps = self.cap.get(cv2.CAP_PROP_FPS)
-        self.logger.debug(
+        logger.debug(
             "Camera properties: width=%s, height=%s, fps=%s",
             self.cam_width,
             self.cam_height,
@@ -129,7 +121,7 @@ class MotionDetector:
         while True:
             ret, frame = self.cap.read()
             if not ret:
-                self.logger.error("Failed to capture frame from camera.")
+                logger.error("Failed to capture frame from camera.")
                 break
 
             # Process the frame for motion detection
@@ -179,7 +171,7 @@ class MotionDetector:
 
         # handle motion detection or no motion
         if motion_detected:
-            self.logger.debug("Motion detected!")
+            logger.debug("Motion detected!")
             self.handle_motion_detection(frame)
         else:
             if self.is_event_ongoing:
@@ -187,7 +179,7 @@ class MotionDetector:
                     cv2.getTickCount() - self.last_motion_time
                 ) / cv2.getTickFrequency()
                 if time_since_last_motion > self.config.event.no_motion_timeout:
-                    self.logger.info(
+                    logger.info(
                         "No motion detected for a while, stopping event..."
                     )
                     self.stop_event()
@@ -203,9 +195,9 @@ class MotionDetector:
                 cv2.getTickCount() - self.movie_start_time
             ) / cv2.getTickFrequency()
             if movie_duration > self.config.movie.max_duration:
-                self.logger.info("Movie recording duration exceeded, stopping movie...")
+                logger.info("Movie recording duration exceeded, stopping movie...")
                 self.stop_movie_recording()
-                self.logger.info("Starting new movie recording...")
+                logger.info("Starting new movie recording...")
                 self.start_movie_recording()
         elif self.is_movie_recording:
             # If movie recording is ongoing but event is not, stop the movie
@@ -220,38 +212,38 @@ class MotionDetector:
             self.start_movie_recording()
 
     def start_event(self, frame):
-        self.logger.info("Starting event...")
+        logger.info("Starting event...")
         self.is_event_ongoing = True
         completed = subprocess.run(
             self.config.event.on_event_start, shell=True, capture_output=True
         )
         if completed.returncode != 0:
-            self.logger.error(
+            logger.error(
                 f"Error executing event start command: {completed.stderr.decode()}"
             )
         else:
-            self.logger.info(
+            logger.info(
                 f"Event start command was successfull: {completed.stdout.decode()}"
             )
         self.take_picture(frame)
 
     def stop_event(self):
-        self.logger.info("Stopping event...")
+        logger.info("Stopping event...")
         self.is_event_ongoing = False
         completed = subprocess.run(
             self.config.event.on_event_end, shell=True, capture_output=True
         )
         if completed.returncode != 0:
-            self.logger.error(
+            logger.error(
                 f"Error executing event end command: {completed.stderr.decode()}"
             )
         else:
-            self.logger.info(
+            logger.info(
                 f"Event end command was successfull: {completed.stdout.decode()}"
             )
 
     def record_precapture_frames(self, frame_buffer: list, movie_filename: str):
-        self.logger.info("Recording pre-capture frames to %s", {movie_filename})
+        logger.info("Recording pre-capture frames to %s", {movie_filename})
         gst_str = (
             f"appsrc ! "
             f"videoconvert ! "
@@ -277,10 +269,10 @@ class MotionDetector:
                 video_writer.write(frame)
         video_writer.release()
         self.is_precapture_recorded[movie_filename] = True
-        self.logger.info("Pre-capture frames recorded.")
+        logger.info("Pre-capture frames recorded.")
 
     def start_movie_recording(self):
-        self.logger.info("Starting movie recording...")
+        logger.info("Starting movie recording...")
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         if self.config.movie.record_precapture:
             self.movie_filename = os.path.join(
@@ -306,7 +298,7 @@ class MotionDetector:
                 args=(self.frame_buffer, self.precapture_movie_filename),
             ).start()
         # Record movie using GStreamer
-        self.logger.debug("Starting GStreamer process...")
+        logger.debug("Starting GStreamer process...")
         gst_command = [
             "gst-launch-1.0",
             "-e",
@@ -339,33 +331,33 @@ class MotionDetector:
             "location={}".format(self.movie_filename),
         ]
         gst_command_printed = " ".join(gst_command)
-        self.logger.debug(f"GStreamer command: {gst_command_printed}")
+        logger.debug(f"GStreamer command: {gst_command_printed}")
         # Start the GStreamer process
         try:
             self.gst_process = subprocess.Popen(
                 gst_command, shell=False, preexec_fn=os.setsid
             )
         except Exception as e:
-            self.logger.error(f"Failed to start GStreamer process: {e}")
+            logger.error(f"Failed to start GStreamer process: {e}")
         else:
             self.is_movie_recording = True
             self.movie_start_time = cv2.getTickCount()
-            self.logger.info(
+            logger.info(
                 f"GStreamer process started for recording: {self.movie_filename}"
             )
             movie_start_command = self.config.event.on_movie_start.format(
                 filename=self.final_movie_filename
             )
-            self.logger.debug(f"Running movie start command: {movie_start_command}")
+            logger.debug(f"Running movie start command: {movie_start_command}")
             completed = subprocess.run(
                 movie_start_command, shell=True, capture_output=True
             )
             if completed.returncode != 0:
-                self.logger.error(
+                logger.error(
                     f"Error executing movie start command: {completed.stderr.decode()}"
                 )
             else:
-                self.logger.info(
+                logger.info(
                     f"Movie start command was successful: {completed.stdout.decode()}"
                 )
 
@@ -380,11 +372,11 @@ class MotionDetector:
                 break
             time.sleep(1)
         if not movie1_exists:
-            self.logger.warning("Pre-capture movie not found, skipping concatenation.")
+            logger.warning("Pre-capture movie not found, skipping concatenation.")
             return (False, "Pre-capture movie not found.")
         # create a temporary file to store the list of files
         # Use ffmpeg to concatenate the movies
-        self.logger.info(
+        logger.info(
             "Concatenating movies {} and {} to {}".format(movie1, movie2, output_movie)
         )
         file_list = os.path.join(self.config.tmp_dir.dirpath, "file_list.txt")
@@ -393,7 +385,7 @@ class MotionDetector:
             temp_file.write(f"file '{movie2}'\n".encode())
 
         cmd = f"ffmpeg -f concat -safe 0 -i {file_list} -c copy {output_movie}"
-        self.logger.debug(f"Running command: {cmd}")
+        logger.debug(f"Running command: {cmd}")
         completed = subprocess.run(cmd, capture_output=True, shell=True)
         # TODO: investigate why ffmpeg returns 1 even if the command succeeds
         return (completed.returncode == 0, completed.stderr.decode())
@@ -407,10 +399,10 @@ class MotionDetector:
                 precapture_movie_filename, movie_filename, final_movie_name
             )
             if success:
-                self.logger.error(f"Error concatenating movies: {error_message}")
+                logger.error(f"Error concatenating movies: {error_message}")
                 final_movie_name = movie_filename
             else:
-                self.logger.info(
+                logger.info(
                     f"Movies concatenated successfully: {final_movie_name}"
                 )
         # Run the movie end command
@@ -420,22 +412,22 @@ class MotionDetector:
             capture_output=True,
         )
         if completed.returncode != 0:
-            self.logger.error(
+            logger.error(
                 f"Error executing movie end command: {completed.stderr.decode()}"
             )
         else:
-            self.logger.info(
+            logger.info(
                 f"Movie end command was successful: {completed.stdout.decode()}"
             )
 
     def stop_movie_recording(self):
-        self.logger.info("Stopping movie recording...")
+        logger.info("Stopping movie recording...")
         if self.gst_process is not None:
             try:
                 # Terminate the GStreamer process
                 os.killpg(os.getpgid(self.gst_process.pid), signal.SIGINT)
                 self.gst_process.wait()
-                self.logger.info(
+                logger.info(
                     f"GStreamer process stopped. Movie saved to: {self.movie_filename}"
                 )
                 self.gst_process = None
@@ -453,21 +445,21 @@ class MotionDetector:
                 self.movie_filename = None
                 self.final_movie_filename = None
             except Exception as e:
-                self.logger.error(f"Failed to stop GStreamer process: {e}")
+                logger.error(f"Failed to stop GStreamer process: {e}")
 
     def take_picture(self, frame):
-        self.logger.info("Taking picture...")
+        logger.info("Taking picture...")
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = os.path.join(self.config.picture.dirpath, f"picture_{timestamp}.jpg")
         cv2.imwrite(filename, frame)
         picture_command = self.config.event.on_picture_save.format(filename=filename)
-        self.logger.debug(f"Running picture command: {picture_command}")
+        logger.debug(f"Running picture command: {picture_command}")
         completed = subprocess.run(picture_command, shell=True, capture_output=True)
         if completed.returncode != 0:
-            self.logger.error(
+            logger.error(
                 f"Error executing picture taken command: {completed.stderr.decode()}"
             )
         else:
-            self.logger.info(
+            logger.info(
                 f"Picture taken command was successfull: {completed.stdout.decode()}"
             )

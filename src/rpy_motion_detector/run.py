@@ -1,7 +1,12 @@
 from .motion_detector import MotionDetector
+from .config import MotionDetectorConfig
 import argparse
 import signal
 import sys
+import logging
+import os
+
+logger = logging.getLogger(__name__)
 
 
 class SignalHandler:
@@ -10,14 +15,28 @@ class SignalHandler:
         self.resources = resources
 
     def handle_signal(self, signum, frame):
-        sys.stdout.write(f"Received signal {signum}, cleaning up...\n")
+        logger.warning(f"Received signal {signum}, cleaning up...\n")
         for resource in self.resources:
             del resource
         sys.exit(0)
 
 
 def run(config_file: str, dry_run: bool = False, log_output: str = None):
-    detector = MotionDetector(config_file, log_output=log_output)
+
+    if not os.path.exists(config_file):
+        logger.error(f"Configuration file {config_file} does not exist.")
+        sys.exit(1)
+    logger.info("Loading configuration file: {}".format(config_file))
+    config = MotionDetectorConfig(config_file)
+
+    logging.basicConfig(
+            filename=log_output,
+            filemode="a",
+            level=config.log.level,
+            format="%(asctime)s - %(levelname)s - %(message)s",
+        )
+
+    detector = MotionDetector(config)
     signal_handler = SignalHandler([detector])
     # Register the signal handler
     signal.signal(signal.SIGINT, signal_handler.handle_signal)

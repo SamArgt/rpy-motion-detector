@@ -5,7 +5,6 @@ import configparser
 @dataclass
 class LogConfig:
     level: str
-    file: str
 
 
 @dataclass
@@ -99,7 +98,6 @@ class MotionDetectorConfig:
         )
         self.log = LogConfig(
             level=config.get('log', 'level', fallback='INFO'),
-            file=config.get('log', 'file', fallback=None)
         )
         self.tmp_dir = TmpDirConfig(
             dirpath=config.get('tmp', 'dirpath', fallback='/tmp')
