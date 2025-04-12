@@ -28,6 +28,8 @@ sudo apt-get install v4l2loopback-dkms
 sudo vim /etc/modprobe.d/v4l2loopback.conf
 >> options v4l2loopback video_nr=40,50 card_label="Motion,Movie"
 sudo modprobe v4l2loopback
+sudo vim /etc/modules # add v4l2loopback
+>> v4l2loopback
 ```
 
 ### Stream to virtual devices
