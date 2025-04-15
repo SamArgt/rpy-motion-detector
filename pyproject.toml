@@ -22,7 +22,7 @@ dependencies = [
 ]
 
 [project.scripts]
-rpy_motion_detector = "rpy_motion_detector.run:run"
+rpy-motion-detector = "rpy_motion_detector.run:run"
 
 [project.urls]
 Homepage = "https://github.com/SamArgt/rpy-motion-detector"
