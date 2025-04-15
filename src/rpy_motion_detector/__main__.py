@@ -9,7 +9,6 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--dry-run",
-        type=str,
         help="Dry run mode, do not start the motion detector",
         action="store_true",
     )
