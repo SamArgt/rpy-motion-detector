@@ -43,4 +43,4 @@ jobs:
     #   run: |
     #     pytest
     - name: Run app
-      run: rpy_motion_detector --config config/default.ini --dry-run
+      run: rpy-motion-detector --config config/default.ini --dry-run
