@@ -31,7 +31,7 @@ jobs:
         sudo apt install pipx
         pipx ensurepath
     - name: Install package via pipx
-      run: pipx install rpy_motion_detector
+      run: pipx install .
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
