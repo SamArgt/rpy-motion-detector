@@ -25,18 +25,18 @@ class DetectionConfig:
 
 @dataclass
 class MovieConfig:
-    enable: bool = True
     device: str
     dirpath: str
     precapture_seconds: int
     max_duration: int
     record_precapture: bool
+    enable: bool = True
 
 
 @dataclass
 class PictureConfig:
-    enable: bool = True
     dirpath: str
+    enable: bool = True
 
 
 @dataclass
