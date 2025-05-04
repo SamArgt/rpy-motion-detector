@@ -49,10 +49,10 @@ class MotionDetector:
         # Initialize variables
         # Opencv
         self.cap = None
-        self.background_subtractor = cv2.bgsegm.createBackgroundSubtractorMOG(
+        self.background_subtractor = cv2.createBackgroundSubtractorMOG2(
             history=self.config.detection.background_substractor_history,
-            nmixtures=self.config.detection.threshold,
-            backgroundRatio=0.7,
+            varThreshold=self.config.detection.threshold,
+            detectShadows=False
         )
         # motion variables
         self.last_motion_time = 0
