@@ -1,6 +1,5 @@
 from .motion_detector import MotionDetector
 from .config import MotionDetectorConfig
-import argparse
 import signal
 import sys
 import logging
@@ -48,27 +47,3 @@ def run(config_file: str, dry_run: bool = False, log_output: str = None):
         print("Dry run mode, not starting the motion detector.")
         return
     detector.start()
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Motion Detector")
-    parser.add_argument(
-        "--config",
-        type=str,
-        help="Path to the configuration file",
-    )
-    parser.add_argument(
-        "--dry-run",
-        help="Dry run mode, do not start the motion detector",
-        action="store_true",
-    )
-    parser.add_argument(
-        "--log-output",
-        help=(
-            "Specify a file path for logging. If not provided, logs will be printed to stdout "
-            "unless configured otherwise."
-        ),
-        default=None,
-    )
-    args = parser.parse_args()
-    run(args.config, args.dry_run, args.log_output)
