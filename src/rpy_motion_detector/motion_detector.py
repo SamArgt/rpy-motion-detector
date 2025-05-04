@@ -221,7 +221,7 @@ class MotionDetector:
         if not self.is_event_ongoing:
             self.start_event(frame)
 
-        if not self.is_movie_recording:
+        if not self.is_movie_recording and not self.config.movie.enable:
             self.start_movie_recording()
 
     def start_event(self, frame):
@@ -238,7 +238,8 @@ class MotionDetector:
             logger.info(
                 f"Event start command was successfull: {completed.stdout.decode()}"
             )
-        self.take_picture(frame)
+        if self.config.picture.enable:
+            self.take_picture(frame)
 
     def stop_event(self):
         logger.info("Stopping event...")

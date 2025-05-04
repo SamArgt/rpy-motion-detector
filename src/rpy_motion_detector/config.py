@@ -25,6 +25,7 @@ class DetectionConfig:
 
 @dataclass
 class MovieConfig:
+    enable: bool = True
     device: str
     dirpath: str
     precapture_seconds: int
@@ -34,6 +35,7 @@ class MovieConfig:
 
 @dataclass
 class PictureConfig:
+    enable: bool = True
     dirpath: str
 
 
@@ -80,6 +82,7 @@ class MotionDetectorConfig:
             consecutive_frames=config.getint('detection', 'consecutive_frames', fallback=3)
         )
         self.movie = MovieConfig(
+            enable=config.getboolean('movie', 'enable', fallback=True),
             device=config.get('movie', 'device', fallback='/dev/video50'),
             dirpath=config.get('movie', 'dirpath', fallback='/tmp'),
             precapture_seconds=config.getint('movie', 'precapture_seconds', fallback=5),
@@ -87,6 +90,7 @@ class MotionDetectorConfig:
             record_precapture=config.getboolean('movie', 'record_precapture', fallback=False)
         )
         self.picture = PictureConfig(
+            enable=config.getboolean('picture', 'enable', fallback=True),
             dirpath=config.get('picture', 'dirpath', fallback='/tmp')
         )
         self.event = EventConfig(
