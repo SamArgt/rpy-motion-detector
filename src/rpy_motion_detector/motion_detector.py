@@ -49,7 +49,6 @@ class MotionDetector:
         self.cap = None
         self.background_subtractor = cv2.createBackgroundSubtractorMOG2(
             history=self.config.detection.background_substractor_history,
-            varThreshold=self.config.detection.threshold,
             detectShadows=False,
         )
         # detection variables
@@ -77,6 +76,8 @@ class MotionDetector:
             os.killpg(os.getpgid(self.gst_process.pid), signal.SIGINT)
             self.gst_process.wait()
             logger.info("Released GStreamer process.")
+        self.stop_event()
+        self.stop_movie_recording()
         # Cleanup tmp directory
         if os.path.exists(self.config.tmp_dir.dirpath):
             logger.info("Cleaning up tmp directory...")
