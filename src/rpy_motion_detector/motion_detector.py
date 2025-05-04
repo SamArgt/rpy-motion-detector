@@ -166,6 +166,9 @@ class MotionDetector:
         for contour in contours:
             area = cv2.contourArea(contour)
             if self.config.detection.min_area < area < self.config.detection.max_area:
+                logger.debug(
+                    "Motion detected with area: %s", area
+                )
                 self.detected_motion_consecutive_frames += 1
                 motion_detected = True
                 self.last_motion_time = cv2.getTickCount()
