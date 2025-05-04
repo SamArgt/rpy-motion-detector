@@ -20,6 +20,7 @@ class DetectionConfig:
     background_substractor_history: int
     blur_size: int = 5
     dilate_iterations: int = 2
+    consecutive_frames: int = 3  # number of frames to consider motion detected
 
 
 @dataclass
@@ -75,7 +76,8 @@ class MotionDetectorConfig:
             background_substractor_history=config.getint(
                 'detection', 'background_substractor_history', fallback=500),
             blur_size=config.getint('detection', 'blur_size', fallback=21),
-            dilate_iterations=config.getint('detection', 'dilate_iterations', fallback=2)
+            dilate_iterations=config.getint('detection', 'dilate_iterations', fallback=2),
+            consecutive_frames=config.getint('detection', 'consecutive_frames', fallback=3)
         )
         self.movie = MovieConfig(
             device=config.get('movie', 'device', fallback='/dev/video50'),

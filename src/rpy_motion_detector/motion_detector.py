@@ -33,9 +33,7 @@ class MotionDetector:
         # create picture directory if it doesn't exist
         try:
             os.makedirs(self.config.picture.dirpath)
-            logger.debug(
-                "Created picture directory: %s", self.config.picture.dirpath
-            )
+            logger.debug("Created picture directory: %s", self.config.picture.dirpath)
         except FileExistsError:
             pass
 
@@ -52,8 +50,10 @@ class MotionDetector:
         self.background_subtractor = cv2.createBackgroundSubtractorMOG2(
             history=self.config.detection.background_substractor_history,
             varThreshold=self.config.detection.threshold,
-            detectShadows=False
+            detectShadows=False,
         )
+        # detection variables
+        self.detected_motion_consecutive_frames = 0
         # motion variables
         self.last_motion_time = 0
         self.is_event_ongoing = False
@@ -165,23 +165,35 @@ class MotionDetector:
         for contour in contours:
             area = cv2.contourArea(contour)
             if self.config.detection.min_area < area < self.config.detection.max_area:
+                self.detected_motion_consecutive_frames += 1
                 motion_detected = True
                 self.last_motion_time = cv2.getTickCount()
                 break
 
         # handle motion detection or no motion
-        if motion_detected:
-            logger.debug("Motion detected!")
+        if (
+            motion_detected
+            and self.detected_motion_consecutive_frames
+            >= self.config.detection.consecutive_frames
+        ):
+            logger.debug(
+                "Motion detected and number of consecutive frames: %s",
+                self.detected_motion_consecutive_frames,
+            )
             self.handle_motion_detection(frame)
+        elif motion_detected:
+            logger.debug(
+                "Motion detected but not enough consecutive frames %s",
+                self.detected_motion_consecutive_frames,
+            )
         else:
+            self.detected_motion_consecutive_frames = 0
             if self.is_event_ongoing:
                 time_since_last_motion = (
                     cv2.getTickCount() - self.last_motion_time
                 ) / cv2.getTickFrequency()
                 if time_since_last_motion > self.config.event.no_motion_timeout:
-                    logger.info(
-                        "No motion detected for a while, stopping event..."
-                    )
+                    logger.info("No motion detected for a while, stopping event...")
                     self.stop_event()
                     self.stop_movie_recording()
 
@@ -402,9 +414,7 @@ class MotionDetector:
                 logger.error(f"Error concatenating movies: {error_message}")
                 final_movie_name = movie_filename
             else:
-                logger.info(
-                    f"Movies concatenated successfully: {final_movie_name}"
-                )
+                logger.info(f"Movies concatenated successfully: {final_movie_name}")
         # Run the movie end command
         completed = subprocess.run(
             self.config.event.on_movie_end.format(filename=final_movie_name),
