@@ -73,7 +73,7 @@ class MotionDetectorConfig:
         )
         self.detection = DetectionConfig(
             min_area=config.getint('detection', 'min_area', fallback=500),
-            max_area=config.getint('detection', 'max_area', fallback=5000),
+            max_area=config.getint('detection', 'max_area', fallback=1000000),
             threshold=config.getint('detection', 'threshold', fallback=127),
             background_substractor_history=config.getint(
                 'detection', 'background_substractor_history', fallback=500),
