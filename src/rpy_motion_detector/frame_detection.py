@@ -70,8 +70,8 @@ if __name__ == "__main__":
     # Set the GStreamer pipelines for RTSP streaming
     # One for the frame and one for the processed frame
     gst_str_frame = (
-        "appsrc ! videoconvert ! x264enc tune=zerolatency bitrate=500 speed-preset=superfast ! "
-        f"rtph264pay config-interval=1 pt=96 ! udpsink host={rtsp_url}/frame_stream"
+        "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency ! "
+        f"video/x-h264,profile=main ! queue ! rtspclientsink location={rtsp_url}/frame protocols=tcp"
     )
     video_writer_frame = cv2.VideoWriter(
         gst_str_frame,
@@ -81,8 +81,8 @@ if __name__ == "__main__":
         (cam_width, cam_height),
     )
     gst_str_processed = (
-        "appsrc ! videoconvert ! x264enc tune=zerolatency bitrate=500 speed-preset=superfast ! "
-        f"rtph264pay config-interval=1 pt=96 ! udpsink host={rtsp_url}/processed_stream"
+        "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency ! "
+        f"video/x-h264,profile=main ! queue ! rtspclientsink location={rtsp_url}/processed_frame protocols=tcp"
     )
     video_writer_processed = cv2.VideoWriter(
         gst_str_processed,
