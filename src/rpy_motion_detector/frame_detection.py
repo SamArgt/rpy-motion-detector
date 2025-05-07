@@ -103,6 +103,7 @@ if __name__ == "__main__":
     #     print("Error: Could not open GStreamer pipeline for processed frame.")
     #     exit(1)
 
+    counter = 0
     while True:
         ret, frame = video_capture.read()
         if not ret:
@@ -127,8 +128,8 @@ if __name__ == "__main__":
 
         # Write the frame to the RTSP stream
         video_writer_frame.write(frame)
-        print(f"frame: {frame.shape}")
-        print("Frame written to RTSP stream.")
-        break
+        counter += 1
+        if counter > 99:
+            break
         # Write the processed frame to the RTSP stream
         # video_writer_processed.write(processed_frame)
