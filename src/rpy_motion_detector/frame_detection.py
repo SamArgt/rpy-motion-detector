@@ -127,6 +127,8 @@ if __name__ == "__main__":
 
         # Write the frame to the RTSP stream
         video_writer_frame.write(frame)
+        print(f"frame: {frame.shape}")
         print("Frame written to RTSP stream.")
+        break
         # Write the processed frame to the RTSP stream
         # video_writer_processed.write(processed_frame)
