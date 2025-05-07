@@ -117,4 +117,4 @@ if __name__ == "__main__":
         # Write the frame to the RTSP stream
         video_writer_frame.write(frame)
         # Write the processed frame to the RTSP stream
-        video_writer_processed.write(processed_frame)
+        # video_writer_processed.write(processed_frame)
