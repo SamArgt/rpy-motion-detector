@@ -80,6 +80,7 @@ if __name__ == "__main__":
         0,
         fps,
         (cam_width, cam_height),
+        True
     )
     if not video_writer_frame.isOpened():
         print("Error: Could not open GStreamer pipeline for frame.")
