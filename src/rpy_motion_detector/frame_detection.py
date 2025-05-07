@@ -58,7 +58,6 @@ if __name__ == "__main__":
         history=background_substractor_history,
         detectShadows=False,
     )
-    rtsp_url = "rtsp://192.168.1.123:8554"
     video_capture = cv2.VideoCapture(video_device)
     if not video_capture.isOpened():
         print("Error: Could not open video device.")
@@ -69,9 +68,10 @@ if __name__ == "__main__":
     print(f"Camera resolution: {cam_width}x{cam_height}, FPS: {fps}")
     # Set the GStreamer pipelines for RTSP streaming
     # One for the frame and one for the processed frame
+    rtsp_url = "rtsp://192.168.1.123:8554"
     gst_str_frame = (
-        "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency ! queue ! "
-        f"rtspclientsink location={rtsp_url}/frame protocols=tcp"
+        "appsrc ! videoconvert ! video/x-raw,format=I420 ! x264enc speed-preset=ultrafast tune=zerolatency ! "
+        f"video/x-h264,profile=baseline ! rtspclientsink location={rtsp_url}/frame"
     )
     print(f"GStreamer pipeline: {gst_str_frame}")
     video_writer_frame = cv2.VideoWriter(
