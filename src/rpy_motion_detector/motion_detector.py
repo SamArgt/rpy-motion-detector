@@ -124,16 +124,14 @@ class MotionDetector:
             if not ret:
                 logger.error("Failed to capture frame from camera.")
                 break
-
+            # add to the frame buffer
+            self.frame_buffer.append(frame.copy())
+            if len(self.frame_buffer) > self.buffer_size:
+                self.frame_buffer.pop(0)
             # Process the frame for motion detection
             self.process_frame(frame)
 
     def process_frame(self, frame):
-        # Add the current frame to the buffer
-        self.frame_buffer.append(frame.copy())
-        if len(self.frame_buffer) > self.buffer_size:
-            self.frame_buffer.pop(0)
-
         # Process frame for motion detection
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         gray = cv2.GaussianBlur(
