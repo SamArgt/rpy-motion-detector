@@ -70,7 +70,7 @@ if __name__ == "__main__":
     # One for the frame and one for the processed frame
     rtsp_url = "rtsp://192.168.1.123:8554"
     gst_str_frame = (
-        "appsrc ! videoconvert ! video/x-raw,format=I420 ! x264enc speed-preset=ultrafast tune=zerolatency ! "
+        "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency ! "
         f"video/x-h264,profile=baseline ! rtspclientsink location={rtsp_url}/frame"
     )
     print(f"GStreamer pipeline: {gst_str_frame}")
