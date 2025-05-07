@@ -124,8 +124,7 @@ if __name__ == "__main__":
             frame = draw_contour(frame, contour)
 
         # Write the frame to the RTSP stream
-        # video_writer_frame.write(frame)
+        video_writer_frame.write(frame)
+        print("Frame written to RTSP stream.")
         # Write the processed frame to the RTSP stream
         # video_writer_processed.write(processed_frame)
-        # Display the frame
-        cv2.imshow("Frame", frame)
