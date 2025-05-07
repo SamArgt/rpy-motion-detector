@@ -73,7 +73,7 @@ if __name__ == "__main__":
         "appsrc ! videoconvert ! video/x-raw,format=I420 ! "
         "x264enc speed-preset=ultrafast tune=zerolatency bitrate=2000 ! "
         "video/x-h264,profile=baseline ! "
-        f"rtspclientsink location={rtsp_url}/frame"
+        f"rtspclientsink location={rtsp_url}/frame protocols=tcp"
     )
     print(f"GStreamer pipeline: {gst_str_frame}")
     video_writer_frame = cv2.VideoWriter(
