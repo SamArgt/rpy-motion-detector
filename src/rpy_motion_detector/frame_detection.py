@@ -84,21 +84,21 @@ if __name__ == "__main__":
     if not video_writer_frame.isOpened():
         print("Error: Could not open GStreamer pipeline for frame.")
         exit(1)
-    gst_str_processed = (
-        "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency ! "
-        f"rtspclientsink location={rtsp_url}/processed_frame protocols=tcp"
-    )
-    print(f"GStreamer pipeline: {gst_str_processed}")
-    video_writer_processed = cv2.VideoWriter(
-        gst_str_processed,
-        cv2.CAP_GSTREAMER,
-        0,
-        fps,
-        (cam_width, cam_height),
-    )
-    if not video_writer_processed.isOpened():
-        print("Error: Could not open GStreamer pipeline for processed frame.")
-        exit(1)
+    # gst_str_processed = (
+    #     "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency ! "
+    #     f"rtspclientsink location={rtsp_url}/processed_frame protocols=tcp"
+    # )
+    # print(f"GStreamer pipeline: {gst_str_processed}")
+    # video_writer_processed = cv2.VideoWriter(
+    #     gst_str_processed,
+    #     cv2.CAP_GSTREAMER,
+    #     0,
+    #     fps,
+    #     (cam_width, cam_height),
+    # )
+    # if not video_writer_processed.isOpened():
+    #     print("Error: Could not open GStreamer pipeline for processed frame.")
+    #     exit(1)
 
     while True:
         ret, frame = video_capture.read()
