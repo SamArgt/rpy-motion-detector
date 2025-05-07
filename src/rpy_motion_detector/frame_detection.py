@@ -58,7 +58,7 @@ if __name__ == "__main__":
         history=background_substractor_history,
         detectShadows=False,
     )
-    rtsp_url = "rtsp://192.168.1.123:5554"
+    rtsp_url = "rtsp://192.168.1.123:8554"
     video_capture = cv2.VideoCapture(video_device)
     if not video_capture.isOpened():
         print("Error: Could not open video device.")
