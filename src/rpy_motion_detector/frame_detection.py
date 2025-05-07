@@ -129,7 +129,7 @@ if __name__ == "__main__":
         # Write the frame to the RTSP stream
         video_writer_frame.write(frame)
         counter += 1
-        if counter > 99:
-            break
+        # if counter > 99:
+        #     break
         # Write the processed frame to the RTSP stream
         # video_writer_processed.write(processed_frame)
