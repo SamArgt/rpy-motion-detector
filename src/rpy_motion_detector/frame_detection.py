@@ -71,7 +71,7 @@ if __name__ == "__main__":
     # One for the frame and one for the processed frame
     gst_str_frame = (
         "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency ! "
-        f"video/x-h264,profile=main ! queue ! rtspclientsink location={rtsp_url}/frame protocols=tcp"
+        f"rtspclientsink location={rtsp_url}/frame protocols=tcp"
     )
     print(f"GStreamer pipeline: {gst_str_frame}")
     video_writer_frame = cv2.VideoWriter(
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         exit(1)
     gst_str_processed = (
         "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency ! "
-        f"video/x-h264,profile=main ! queue ! rtspclientsink location={rtsp_url}/processed_frame protocols=tcp"
+        f"rtspclientsink location={rtsp_url}/processed_frame protocols=tcp"
     )
     print(f"GStreamer pipeline: {gst_str_processed}")
     video_writer_processed = cv2.VideoWriter(
