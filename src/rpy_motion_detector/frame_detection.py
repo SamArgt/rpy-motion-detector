@@ -7,14 +7,14 @@ def frame_processing(frame, blur_size, substractor, bin_threshold, dilate_iterat
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     if verbose:
         print("Converted frame to grayscale.")
-    blur = cv2.GaussianBlur(
-        gray, (blur_size, blur_size), cv2.BORDER_DEFAULT
-    )
-    if verbose:
-        print("Applied Gaussian blur to the frame.")
+    # gray = cv2.GaussianBlur(
+    #     gray, (blur_size, blur_size), cv2.BORDER_DEFAULT
+    # )
+    # if verbose:
+    #     print("Applied Gaussian blur to the frame.")
 
     # Apply background subtraction
-    mask = substractor.apply(blur)
+    mask = substractor.apply(gray)
     if verbose:
         print("Applied background subtraction.")
 
@@ -113,6 +113,7 @@ def stream_frames(
             background_substractor,
             bin_threshold,
             dilate_iterations,
+            verbose=verbose
         )
         if verbose:
             print("Frame processed successfully.")
@@ -247,6 +248,7 @@ if __name__ == "__main__":
             bin_threshold=args.bin_threshold,
             blur_size=args.blur_size,
             dilate_iterations=args.dilate_iterations,
+            verbose=False
         )
     except KeyboardInterrupt:
         print("Interrupted by user, exiting...")
