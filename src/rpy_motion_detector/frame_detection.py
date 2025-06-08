@@ -135,6 +135,10 @@ if __name__ == "__main__":
         help="Maximum contour area to detect (default: 1000000)"
     )
     parser.add_argument(
+        '--var_threshold', type=int, default=16,
+        help="Variance threshold for background subtraction (default: 16)"
+    )
+    parser.add_argument(
         "--threshold", type=int, default=127,
         help="Threshold value for binarization (default: 127)"
     )
@@ -168,6 +172,7 @@ if __name__ == "__main__":
     background_substractor_history = args.background_substractor_history
     background_substractor = cv2.createBackgroundSubtractorMOG2(
         history=args.background_substractor_history,
+        varThreshold=args.var_threshold,
         detectShadows=False,
     )
     video_capture = cv2.VideoCapture(args.video_device)
