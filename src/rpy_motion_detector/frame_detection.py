@@ -120,8 +120,8 @@ def stream_frames(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Motion Detection with RTSP Streaming")
     parser.add_argument(
-        "--video_device", type=str, default="/dev/video0",
-        help="Path to the video device (default: /dev/video0)"
+        "--video_device", type=str, default="/dev/video40",
+        help="Path to the video device (default: /dev/video40)"
     )
     parser.add_argument(
         "--rtsp_url", type=str, default="rtsp://localhost:8554",
