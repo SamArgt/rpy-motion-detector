@@ -7,11 +7,11 @@ def frame_processing(frame, blur_size, substractor, bin_threshold, dilate_iterat
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     if verbose:
         print("Converted frame to grayscale.")
-    # gray = cv2.GaussianBlur(
-    #     gray, (blur_size, blur_size), cv2.BORDER_DEFAULT
-    # )
-    # if verbose:
-    #     print("Applied Gaussian blur to the frame.")
+    gray = cv2.GaussianBlur(
+        gray, (blur_size, blur_size), cv2.BORDER_DEFAULT
+    )
+    if verbose:
+        print("Applied Gaussian blur to the frame.")
 
     # Apply background subtraction
     mask = substractor.apply(gray)
