@@ -66,7 +66,7 @@ def get_video_writer(rtsp_url, path, cam_width, cam_height, fps, is_color=True):
         0,
         fps,
         (cam_width, cam_height),
-        isColor=is_color
+        is_color
     )
     if not video_writer.isOpened():
         raise RuntimeError(
