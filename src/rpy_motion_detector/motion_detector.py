@@ -9,6 +9,7 @@ import cv2
 import threading
 import time
 import shutil
+from .frame_detection import draw_contour, find_contours, frame_processing
 from .config import MotionDetectorConfig
 
 
@@ -49,6 +50,7 @@ class MotionDetector:
         self.cap = None
         self.background_subtractor = cv2.createBackgroundSubtractorMOG2(
             history=self.config.detection.background_substractor_history,
+            varThreshold=self.config.detection.var_threshold,
             detectShadows=False,
         )
         # detection variables
@@ -132,28 +134,18 @@ class MotionDetector:
             self.process_frame(frame)
 
     def process_frame(self, frame):
-        # Process frame for motion detection
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.GaussianBlur(
-            gray, (self.config.detection.blur_size, self.config.detection.blur_size), 0
+        processed_frame = frame_processing(
+            frame,
+            blur_size=self.config.detection.blur_size,
+            substractor=self.background_subtractor,
+            bin_threshold=self.config.detection.bin_threshold,
+            dilate_iterations=self.config.detection.dilate_iterations,
         )
-
-        # Apply background subtraction
-        mask = self.background_subtractor.apply(gray)
-
-        # Apply thresholding to reduce noise
-        _, thresh = cv2.threshold(
-            mask, self.config.detection.threshold, 255, cv2.THRESH_BINARY
-        )
-
-        # Dilate to fill gaps
-        dilated = cv2.dilate(
-            thresh, None, iterations=self.config.detection.dilate_iterations
-        )
-
         # Find contours
-        contours, _ = cv2.findContours(
-            dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        contours = find_contours(
+            processed_frame,
+            min_area=self.config.detection.min_area,
+            max_area=self.config.detection.max_area,
         )
         # detect motion after a soak time period
         if time.time() - self.start_time > 10:
@@ -161,16 +153,13 @@ class MotionDetector:
 
     def detect_motion(self, frame, contours):
         motion_detected = False
-        for contour in contours:
-            area = cv2.contourArea(contour)
-            if self.config.detection.min_area < area < self.config.detection.max_area:
-                logger.debug(
-                    "Motion detected with area: %s", area
-                )
-                self.detected_motion_consecutive_frames += 1
-                motion_detected = True
-                self.last_motion_time = cv2.getTickCount()
-                break
+        if len(contours) > 0:
+            logger.debug(
+                "Motion detected"
+            )
+            self.detected_motion_consecutive_frames += 1
+            motion_detected = True
+            self.last_motion_time = cv2.getTickCount()
 
         # handle motion detection or no motion
         if (
@@ -182,7 +171,7 @@ class MotionDetector:
                 "Motion detected and number of consecutive frames: %s",
                 self.detected_motion_consecutive_frames,
             )
-            self.handle_motion_detection(frame)
+            self.handle_motion_detection(frame, contours)
         elif motion_detected:
             logger.debug(
                 "Motion detected but not enough consecutive frames %s",
@@ -217,15 +206,15 @@ class MotionDetector:
             # If movie recording is ongoing but event is not, stop the movie
             self.stop_movie_recording()
 
-    def handle_motion_detection(self, frame):
+    def handle_motion_detection(self, frame, contours):
 
         if not self.is_event_ongoing:
-            self.start_event(frame)
+            self.start_event(frame, contours)
 
-        if not self.is_movie_recording and not self.config.movie.enable:
+        if not self.is_movie_recording and self.config.movie.enable:
             self.start_movie_recording()
 
-    def start_event(self, frame):
+    def start_event(self, frame, contours):
         logger.info("Starting event...")
         self.is_event_ongoing = True
         completed = subprocess.run(
@@ -240,7 +229,7 @@ class MotionDetector:
                 f"Event start command was successfull: {completed.stdout.decode()}"
             )
         if self.config.picture.enable:
-            self.take_picture(frame)
+            self.take_picture(frame, contours)
 
     def stop_event(self):
         logger.info("Stopping event...")
@@ -460,7 +449,10 @@ class MotionDetector:
             except Exception as e:
                 logger.error(f"Failed to stop GStreamer process: {e}")
 
-    def take_picture(self, frame):
+    def take_picture(self, frame, contours=None):
+        if contours is not None:
+            for contour in contours:
+                frame = draw_contour(frame, contour, put_area=True)
         logger.info("Taking picture...")
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = os.path.join(self.config.picture.dirpath, f"picture_{timestamp}.jpg")
