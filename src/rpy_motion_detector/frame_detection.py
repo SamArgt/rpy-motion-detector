@@ -213,7 +213,7 @@ if __name__ == "__main__":
             blur_size=args.blur_size,
             dilate_iterations=args.dilate_iterations,
             stream_frame=args.stream_frame,
-            tream_processed_frame=args.stream_processed_frame
+            stream_processed_frame=args.stream_processed_frame
         )
     except KeyboardInterrupt:
         print("Interrupted by user, exiting...")
