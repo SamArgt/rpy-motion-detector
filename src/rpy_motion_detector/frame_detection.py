@@ -99,7 +99,8 @@ if __name__ == "__main__":
 
     # Processed frame
     gst_str_processed = (
-        "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency ! "
+        "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency bitrate=2000 ! "
+        "video/x-h264,profile=baseline ! "
         f"rtspclientsink location={rtsp_url}/processed_frame protocols=tcp"
     )
     print(f"GStreamer pipeline: {gst_str_processed}")
