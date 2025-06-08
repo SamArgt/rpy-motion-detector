@@ -2,25 +2,33 @@ import cv2
 import argparse
 
 
-def frame_processing(frame, blur_size, substractor, bin_threshold, dilate_iterations):
+def frame_processing(frame, blur_size, substractor, bin_threshold, dilate_iterations, verbose=True):
     # Apply Gaussian blur to the frame
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(
         gray, (blur_size, blur_size), 0
     )
+    if verbose:
+        print("Applied Gaussian blur to the frame.")
 
     # Apply background subtraction
     mask = substractor.apply(gray)
+    if verbose:
+        print("Applied background subtraction.")
 
     # Apply thresholding to reduce noise
     _, thresh = cv2.threshold(
         mask, bin_threshold, 255, cv2.THRESH_BINARY
     )
+    if verbose:
+        print("Applied thresholding to the mask.")
 
     # Dilate to fill gaps
     dilated = cv2.dilate(
         thresh, None, iterations=dilate_iterations
     )
+    if verbose:
+        print("Dilated the thresholded image to fill gaps.")
 
     return dilated
 
