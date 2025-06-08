@@ -181,6 +181,7 @@ if __name__ == "__main__":
     if not video_capture.isOpened():
         print("Error: Could not open video device.")
         exit(1)
+    print(f"Video device {args.video_device} opened successfully.")
     cam_width = int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH))
     cam_height = int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = int(video_capture.get(cv2.CAP_PROP_FPS))
