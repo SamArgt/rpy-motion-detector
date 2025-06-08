@@ -85,8 +85,8 @@ def stream_frames(
     threshold=127,
     blur_size=21,
     dilate_iterations=2,
-    disable_stream_frame=False,
-    disable_stream_processed_frame=False
+    stream_frame=True,
+    stream_processed_frame=True
 ):
     while True:
         ret, frame = video_capture.read()
@@ -111,9 +111,9 @@ def stream_frames(
             frame = draw_contour(frame, contour)
 
         # Write the frame to the RTSP stream
-        if not disable_stream_frame:
+        if not stream_frame:
             video_writer_frame.write(frame)
-        if not disable_stream_processed_frame:
+        if not stream_processed_frame:
             video_writer_processed.write(processed_frame)
 
 
@@ -153,19 +153,19 @@ if __name__ == "__main__":
         help="History for background subtractor (default: 500)"
     )
     parser.add_argument(
-        "--disable_stream_frame", action="store_true",
-        default=False,
+        "--disable_stream_frame", action="store_false",
+        default=True,
         dest="stream_frame",
         help="Disable streaming the frame with contours"
     )
     parser.add_argument(
-        "--disable_stream_processed_frame", action="store_true",
-        default=False,
+        "--disable_stream_processed_frame", action="store_false",
+        default=True,
         dest="stream_processed_frame",
         help="Disable streaming the processed frame"
     )
     args = parser.parse_args()
-    print(args.__dict__)
+    print(f"Arguments: {args.__dict__}")
 
     background_substractor_history = args.background_substractor_history
     background_substractor = cv2.createBackgroundSubtractorMOG2(
@@ -182,7 +182,7 @@ if __name__ == "__main__":
     print(f"Camera resolution: {cam_width}x{cam_height}, FPS: {fps}")
     # Set the GStreamer pipelines for RTSP streaming
     # Frame with contours
-    if not args.disable_stream_frame:
+    if not args.stream_frame:
         video_writer_frame = get_video_writer(
             args.rtsp_url,
             "frame_with_contours",
@@ -192,7 +192,7 @@ if __name__ == "__main__":
             is_color=True
         )
     # Processed frame
-    if not args.disable_stream_processed_frame:
+    if not args.stream_processed_frame:
         video_writer_processed = get_video_writer(
             args.rtsp_url,
             "processed_frame",
@@ -212,16 +212,16 @@ if __name__ == "__main__":
             threshold=args.threshold,
             blur_size=args.blur_size,
             dilate_iterations=args.dilate_iterations,
-            disable_stream_frame=args.disable_stream_frame,
-            disable_stream_processed_frame=args.disable_stream_processed_frame
+            stream_frame=args.stream_frame,
+            tream_processed_frame=args.stream_processed_frame
         )
     except KeyboardInterrupt:
         print("Interrupted by user, exiting...")
     finally:
         video_capture.release()
-        if not args.disable_stream_frame:
+        if not args.stream_frame:
             video_writer_frame.release()
-        if not args.disable_stream_processed_frame:
+        if not args.stream_processed_frame:
             video_writer_processed.release()
         cv2.destroyAllWindows()
         print("Cleanup done, exiting.")
