@@ -155,11 +155,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--disable_stream_frame", action="store_false",
         dest="stream_frame",
+        default=True,
         help="Disable streaming the frame with contours"
     )
     parser.add_argument(
         "--disable_stream_processed_frame", action="store_false",
         dest="stream_processed_frame",
+        default=True,
         help="Disable streaming the processed frame"
     )
     args = parser.parse_args()
