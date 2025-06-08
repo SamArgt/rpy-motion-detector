@@ -153,12 +153,12 @@ if __name__ == "__main__":
         help="History for background subtractor (default: 500)"
     )
     parser.add_argument(
-        "--disable-stream-frame", action="store_false",
+        "--disable_stream_frame", action="store_false",
         dest="stream_frame",
         help="Disable streaming the frame with contours"
     )
     parser.add_argument(
-        "--disable-stream-processed-frame", action="store_false",
+        "--disable_stream_processed_frame", action="store_false",
         dest="stream_processed_frame",
         help="Disable streaming the processed frame"
     )
