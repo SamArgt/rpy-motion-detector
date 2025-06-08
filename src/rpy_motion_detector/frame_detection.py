@@ -2,7 +2,7 @@ import cv2
 import argparse
 
 
-def frame_processing(frame, blur_size, substractor, threshold, dilate_iterations):
+def frame_processing(frame, blur_size, substractor, bin_threshold, dilate_iterations):
     # Apply Gaussian blur to the frame
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(
@@ -14,7 +14,7 @@ def frame_processing(frame, blur_size, substractor, threshold, dilate_iterations
 
     # Apply thresholding to reduce noise
     _, thresh = cv2.threshold(
-        mask, threshold, 255, cv2.THRESH_BINARY
+        mask, bin_threshold, 255, cv2.THRESH_BINARY
     )
 
     # Dilate to fill gaps
@@ -82,7 +82,7 @@ def stream_frames(
     background_substractor,
     min_area=50,
     max_area=1000000,
-    threshold=127,
+    bin_threshold=127,
     blur_size=21,
     dilate_iterations=2,
 ):
@@ -97,7 +97,7 @@ def stream_frames(
             frame,
             blur_size,
             background_substractor,
-            threshold,
+            bin_threshold,
             dilate_iterations,
         )
 
@@ -139,7 +139,7 @@ if __name__ == "__main__":
         help="Variance threshold for background subtraction (default: 16)"
     )
     parser.add_argument(
-        "--threshold", type=int, default=127,
+        "--bin_threshold", type=int, default=127,
         help="Threshold value for binarization (default: 127)"
     )
     parser.add_argument(
@@ -216,7 +216,7 @@ if __name__ == "__main__":
             background_substractor,
             min_area=args.min_area,
             max_area=args.max_area,
-            threshold=args.threshold,
+            bin_threshold=args.bin_threshold,
             blur_size=args.blur_size,
             dilate_iterations=args.dilate_iterations,
         )
