@@ -165,6 +165,7 @@ if __name__ == "__main__":
         help="Disable streaming the processed frame"
     )
     args = parser.parse_args()
+    print(args.__dict__)
 
     background_substractor_history = args.background_substractor_history
     background_substractor = cv2.createBackgroundSubtractorMOG2(
