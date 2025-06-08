@@ -211,7 +211,7 @@ class MotionDetector:
         if not self.is_event_ongoing:
             self.start_event(frame, contours)
 
-        if not self.is_movie_recording and not self.config.movie.enable:
+        if not self.is_movie_recording and self.config.movie.enable:
             self.start_movie_recording()
 
     def start_event(self, frame, contours):
