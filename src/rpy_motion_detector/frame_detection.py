@@ -55,6 +55,8 @@ def draw_contour(frame, contour, put_area=True):
 if __name__ == "__main__":
 
     video_device = "/dev/video40"
+    rtsp_url = "rtsp://192.168.1.123:8554"
+    # Detection parameters
     min_area = 500
     max_area = 1000000
     threshold = 127
@@ -74,41 +76,44 @@ if __name__ == "__main__":
     fps = int(video_capture.get(cv2.CAP_PROP_FPS))
     print(f"Camera resolution: {cam_width}x{cam_height}, FPS: {fps}")
     # Set the GStreamer pipelines for RTSP streaming
-    # One for the frame and one for the processed frame
-    rtsp_url = "rtsp://192.168.1.123:8554"
-    gst_str_frame = (
-        "appsrc ! videoconvert ! "
-        "x264enc speed-preset=ultrafast tune=zerolatency bitrate=2000 ! "
-        "video/x-h264,profile=baseline ! "
-        f"rtspclientsink location={rtsp_url}/frame protocols=tcp"
-    )
-    print(f"GStreamer pipeline: {gst_str_frame}")
-    video_writer_frame = cv2.VideoWriter(
-        gst_str_frame,
-        cv2.CAP_GSTREAMER,
-        0,
-        fps,
-        (cam_width, cam_height),
-        True
-    )
-    if not video_writer_frame.isOpened():
-        print("Error: Could not open GStreamer pipeline for frame.")
-        exit(1)
-    # gst_str_processed = (
-    #     "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency ! "
-    #     f"rtspclientsink location={rtsp_url}/processed_frame protocols=tcp"
+    
+    # Frame with contours
+    # gst_str_frame = (
+    #     "appsrc ! videoconvert ! "
+    #     "x264enc speed-preset=ultrafast tune=zerolatency bitrate=2000 ! "
+    #     "video/x-h264,profile=baseline ! "
+    #     f"rtspclientsink location={rtsp_url}/frame protocols=tcp"
     # )
-    # print(f"GStreamer pipeline: {gst_str_processed}")
-    # video_writer_processed = cv2.VideoWriter(
-    #     gst_str_processed,
+    # print(f"GStreamer pipeline: {gst_str_frame}")
+    # video_writer_frame = cv2.VideoWriter(
+    #     gst_str_frame,
     #     cv2.CAP_GSTREAMER,
     #     0,
     #     fps,
     #     (cam_width, cam_height),
+    #     True
     # )
-    # if not video_writer_processed.isOpened():
-    #     print("Error: Could not open GStreamer pipeline for processed frame.")
+    # if not video_writer_frame.isOpened():
+    #     print("Error: Could not open GStreamer pipeline for frame.")
     #     exit(1)
+
+    # Processed frame
+    gst_str_processed = (
+        "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency ! "
+        f"rtspclientsink location={rtsp_url}/processed_frame protocols=tcp"
+    )
+    print(f"GStreamer pipeline: {gst_str_processed}")
+    video_writer_processed = cv2.VideoWriter(
+        gst_str_processed,
+        cv2.CAP_GSTREAMER,
+        0,
+        fps,
+        (cam_width, cam_height),
+        isColor=False
+    )
+    if not video_writer_processed.isOpened():
+        print("Error: Could not open GStreamer pipeline for processed frame.")
+        exit(1)
 
     counter = 0
     while True:
