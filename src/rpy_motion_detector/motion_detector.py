@@ -136,10 +136,10 @@ class MotionDetector:
     def process_frame(self, frame):
         processed_frame = frame_processing(
             frame,
-            self.background_subtractor,
-            self.config.detection.bin_threshold,
-            self.config.detection.blur_size,
-            self.config.detection.dilate_iterations,
+            blur_size=self.config.detection.blur_size,
+            substractor=self.background_subtractor,
+            bin_threshold=self.config.detection.bin_threshold,
+            dilate_iterations=self.config.detection.dilate_iterations,
         )
         # Find contours
         contours = find_contours(
