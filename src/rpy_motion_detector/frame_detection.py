@@ -85,12 +85,16 @@ def stream_frames(
     bin_threshold=127,
     blur_size=21,
     dilate_iterations=2,
+    verbose=True
 ):
     while True:
         ret, frame = video_capture.read()
         if not ret:
             print("Error: Could not read frame.")
             break
+        else:
+            if verbose:
+                print("Frame read successfully.")
 
         # Process the frame
         processed_frame = frame_processing(
@@ -111,10 +115,12 @@ def stream_frames(
         # Write the frame to the RTSP stream
         if video_writer_frame is not None:
             video_writer_frame.write(frame)
-            print("Frame with contours written to RTSP stream.")
+            if verbose:
+                print("Frame with contours written to RTSP stream.")
         if video_writer_processed is not None:
             video_writer_processed.write(processed_frame)
-            print("Processed frame written to RTSP stream.")
+            if verbose:
+                print("Processed frame written to RTSP stream.")
 
 
 if __name__ == "__main__":
