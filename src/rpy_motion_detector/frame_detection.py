@@ -111,8 +111,10 @@ def stream_frames(
         # Write the frame to the RTSP stream
         if video_writer_frame is not None:
             video_writer_frame.write(frame)
+            print("Frame with contours written to RTSP stream.")
         if video_writer_processed is not None:
             video_writer_processed.write(processed_frame)
+            print("Processed frame written to RTSP stream.")
 
 
 if __name__ == "__main__":
