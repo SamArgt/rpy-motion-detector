@@ -53,6 +53,70 @@ def draw_contour(frame, contour, put_area=True):
     return frame
 
 
+def get_video_writer(rtsp_url, path, cam_width, cam_height, fps, is_color=True):
+    gst_str = (
+        f"appsrc ! videoconvert ! "
+        "x264enc speed-preset=ultrafast tune=zerolatency bitrate=2000 ! "
+        "video/x-h264,profile=baseline ! "
+        f"rtspclientsink location={rtsp_url}/{path} protocols=tcp"
+    )
+    video_writer = cv2.VideoWriter(
+        gst_str,
+        cv2.CAP_GSTREAMER,
+        0,
+        fps,
+        (cam_width, cam_height),
+        isColor=is_color
+    )
+    if not video_writer.isOpened():
+        raise RuntimeError(
+            f"Could not open GStreamer pipeline for {path} at {rtsp_url}. "
+        )
+    return video_writer
+
+
+def stream_frames(
+    video_capture,
+    video_writer_frame,
+    video_writer_processed,
+    background_substractor,
+    min_area=50,
+    max_area=1000000,
+    threshold=127,
+    blur_size=21,
+    dilate_iterations=2,
+    disable_stream_frame=False,
+    disable_stream_processed_frame=False
+):
+    while True:
+        ret, frame = video_capture.read()
+        if not ret:
+            print("Error: Could not read frame.")
+            break
+
+        # Process the frame
+        processed_frame = frame_processing(
+            frame,
+            blur_size,
+            background_substractor,
+            threshold,
+            dilate_iterations,
+        )
+
+        # Find contours
+        contours = find_contours(processed_frame, min_area, max_area)
+
+        # Draw contours on the original frame
+        for contour in contours:
+            frame = draw_contour(frame, contour)
+
+        # Write the frame to the RTSP stream
+        if not disable_stream_frame:
+            video_writer_frame.write(frame)
+        if not disable_stream_processed_frame:
+            video_writer_processed.write(processed_frame)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Motion Detection with RTSP Streaming")
     parser.add_argument(
@@ -116,71 +180,46 @@ if __name__ == "__main__":
     # Set the GStreamer pipelines for RTSP streaming
     # Frame with contours
     if not args.disable_stream_frame:
-        gst_str_frame = (
-            "appsrc ! videoconvert ! "
-            "x264enc speed-preset=ultrafast tune=zerolatency bitrate=2000 ! "
-            "video/x-h264,profile=baseline ! "
-            f"rtspclientsink location={args.rtsp_url}/frame protocols=tcp"
-        )
-        print(f"GStreamer pipeline: {gst_str_frame}")
-        video_writer_frame = cv2.VideoWriter(
-            gst_str_frame,
-            cv2.CAP_GSTREAMER,
-            0,
+        video_writer_frame = get_video_writer(
+            args.rtsp_url,
+            "frame_with_contours",
+            cam_width,
+            cam_height,
             fps,
-            (cam_width, cam_height),
-            True
+            is_color=True
         )
-        if not video_writer_frame.isOpened():
-            print("Error: Could not open GStreamer pipeline for frame.")
-            exit(1)
-
     # Processed frame
     if not args.disable_stream_processed_frame:
-        gst_str_processed = (
-            "appsrc ! videoconvert ! x264enc speed-preset=ultrafast tune=zerolatency bitrate=2000 ! "
-            "video/x-h264,profile=baseline ! "
-            f"rtspclientsink location={args.rtsp_url}/processed_frame protocols=tcp"
-        )
-        print(f"GStreamer pipeline: {gst_str_processed}")
-        video_writer_processed = cv2.VideoWriter(
-            gst_str_processed,
-            cv2.CAP_GSTREAMER,
-            0,
+        video_writer_processed = get_video_writer(
+            args.rtsp_url,
+            "processed_frame",
+            cam_width,
+            cam_height,
             fps,
-            (cam_width, cam_height),
-            isColor=False
+            is_color=False
         )
-        if not video_writer_processed.isOpened():
-            print("Error: Could not open GStreamer pipeline for processed frame.")
-            exit(1)
-
-    counter = 0
-    while True:
-        ret, frame = video_capture.read()
-        if not ret:
-            print("Error: Could not read frame.")
-            break
-
-        # Process the frame
-        processed_frame = frame_processing(
-            frame,
-            args.blur_size,
+    try:
+        stream_frames(
+            video_capture,
+            video_writer_frame if not args.disable_stream_frame else None,
+            video_writer_processed if not args.disable_stream_processed_frame else None,
             background_substractor,
-            args.threshold,
-            args.dilate_iterations,
+            min_area=args.min_area,
+            max_area=args.max_area,
+            threshold=args.threshold,
+            blur_size=args.blur_size,
+            dilate_iterations=args.dilate_iterations,
+            disable_stream_frame=args.disable_stream_frame,
+            disable_stream_processed_frame=args.disable_stream_processed_frame
         )
-
-        # Find contours
-        contours = find_contours(processed_frame, args.min_area, args.max_area)
-
-        # Draw contours on the original frame
-        for contour in contours:
-            frame = draw_contour(frame, contour)
-
-        # Write the frame to the RTSP stream
+    except KeyboardInterrupt:
+        print("Interrupted by user, exiting...")
+    finally:
+        video_capture.release()
         if not args.disable_stream_frame:
-            video_writer_frame.write(frame)
+            video_writer_frame.release()
         if not args.disable_stream_processed_frame:
-            video_writer_processed.write(processed_frame)
-        counter += 1
+            video_writer_processed.release()
+        cv2.destroyAllWindows()
+        print("Cleanup done, exiting.")
+        exit(0)
