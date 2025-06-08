@@ -85,8 +85,6 @@ def stream_frames(
     threshold=127,
     blur_size=21,
     dilate_iterations=2,
-    stream_frame=True,
-    stream_processed_frame=True
 ):
     while True:
         ret, frame = video_capture.read()
@@ -111,9 +109,9 @@ def stream_frames(
             frame = draw_contour(frame, contour)
 
         # Write the frame to the RTSP stream
-        if stream_frame:
+        if video_writer_frame is not None:
             video_writer_frame.write(frame)
-        if stream_processed_frame:
+        if video_writer_processed is not None:
             video_writer_processed.write(processed_frame)
 
 
@@ -216,16 +214,14 @@ if __name__ == "__main__":
             threshold=args.threshold,
             blur_size=args.blur_size,
             dilate_iterations=args.dilate_iterations,
-            stream_frame=args.stream_frame,
-            stream_processed_frame=args.stream_processed_frame
         )
     except KeyboardInterrupt:
         print("Interrupted by user, exiting...")
     finally:
         video_capture.release()
-        if args.stream_frame:
+        if video_writer_frame is not None:
             video_writer_frame.release()
-        if args.stream_processed_frame:
+        if video_writer_processed is not None:
             video_writer_processed.release()
         cv2.destroyAllWindows()
         print("Cleanup done, exiting.")
