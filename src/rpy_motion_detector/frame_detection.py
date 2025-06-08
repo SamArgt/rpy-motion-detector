@@ -196,6 +196,7 @@ if __name__ == "__main__":
             fps,
             is_color=True
         )
+        print("Video writer for frame with contours initialized.")
     else:
         video_writer_frame = None
     # Processed frame
@@ -208,9 +209,11 @@ if __name__ == "__main__":
             fps,
             is_color=False
         )
+        print("Video writer for processed frame initialized.")
     else:
         video_writer_processed = None
     try:
+        print("Starting frame streaming...")
         stream_frames(
             video_capture,
             video_writer_frame,
