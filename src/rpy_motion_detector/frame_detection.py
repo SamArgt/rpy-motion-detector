@@ -111,9 +111,9 @@ def stream_frames(
             frame = draw_contour(frame, contour)
 
         # Write the frame to the RTSP stream
-        if not stream_frame:
+        if stream_frame:
             video_writer_frame.write(frame)
-        if not stream_processed_frame:
+        if stream_processed_frame:
             video_writer_processed.write(processed_frame)
 
 
@@ -182,7 +182,7 @@ if __name__ == "__main__":
     print(f"Camera resolution: {cam_width}x{cam_height}, FPS: {fps}")
     # Set the GStreamer pipelines for RTSP streaming
     # Frame with contours
-    if not args.stream_frame:
+    if args.stream_frame:
         video_writer_frame = get_video_writer(
             args.rtsp_url,
             "frame_with_contours",
@@ -192,7 +192,7 @@ if __name__ == "__main__":
             is_color=True
         )
     # Processed frame
-    if not args.stream_processed_frame:
+    if args.stream_processed_frame:
         video_writer_processed = get_video_writer(
             args.rtsp_url,
             "processed_frame",
@@ -219,9 +219,9 @@ if __name__ == "__main__":
         print("Interrupted by user, exiting...")
     finally:
         video_capture.release()
-        if not args.stream_frame:
+        if args.stream_frame:
             video_writer_frame.release()
-        if not args.stream_processed_frame:
+        if args.stream_processed_frame:
             video_writer_processed.release()
         cv2.destroyAllWindows()
         print("Cleanup done, exiting.")
