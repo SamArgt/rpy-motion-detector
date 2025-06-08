@@ -191,6 +191,8 @@ if __name__ == "__main__":
             fps,
             is_color=True
         )
+    else:
+        video_writer_frame = None
     # Processed frame
     if args.stream_processed_frame:
         video_writer_processed = get_video_writer(
@@ -201,11 +203,13 @@ if __name__ == "__main__":
             fps,
             is_color=False
         )
+    else:
+        video_writer_processed = None
     try:
         stream_frames(
             video_capture,
-            video_writer_frame if not args.disable_stream_frame else None,
-            video_writer_processed if not args.disable_stream_processed_frame else None,
+            video_writer_frame,
+            video_writer_processed,
             background_substractor,
             min_area=args.min_area,
             max_area=args.max_area,
