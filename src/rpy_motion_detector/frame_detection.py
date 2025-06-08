@@ -124,8 +124,8 @@ if __name__ == "__main__":
         help="Path to the video device (default: /dev/video40)"
     )
     parser.add_argument(
-        "--rtsp_url", type=str, default="rtsp://localhost:8554",
-        help="RTSP URL for streaming (default: rtsp://localhost:8554)"
+        "--rtsp_url", type=str, default="rtsp://192.168.1.123:8554",
+        help="RTSP URL for streaming (default: rtsp://192.168.1.123:8554)"
     )
     # Detection parameters
     parser.add_argument(
