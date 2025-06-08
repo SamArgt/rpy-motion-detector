@@ -38,10 +38,17 @@ def find_contours(processed_frame, min_area, max_area):
     return matching_contours
 
 
-def draw_contour(frame, contour):
+def draw_contour(frame, contour, put_area=True):
     # Draw the contour on the frame
     x, y, w, h = cv2.boundingRect(contour)
     cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    # Add text label with the area of the contour
+    if put_area:
+        area = cv2.contourArea(contour)
+        cv2.putText(
+            frame, f"Area: {area}", (x, y - 10),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2
+        )
     return frame
 
 
