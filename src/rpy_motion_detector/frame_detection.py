@@ -110,7 +110,11 @@ def stream_frames(
 
         # Write the frame to the RTSP stream
         if video_writer_frame is not None:
-            video_writer_frame.write(frame)
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            gray = cv2.GaussianBlur(
+                gray, (blur_size, blur_size), 0
+            )
+            video_writer_frame.write(gray)
         if video_writer_processed is not None:
             video_writer_processed.write(processed_frame)
 
@@ -192,7 +196,7 @@ if __name__ == "__main__":
             cam_width,
             cam_height,
             fps,
-            is_color=True
+            is_color=False
         )
     else:
         video_writer_frame = None
