@@ -72,7 +72,8 @@ The application is configured using a .ini file located at [default.ini](./confi
 Key Configuration Options:
 
 -  Detection Settings
-    - `threshold`: Sensitivity of motion detection. Lower values make the detector more sensitive to small movements.
+    - `var_threshold`: Sensitivity of Background Substract MOG2. The higher the less sensitive.
+    - `bin_threshold`: Binary conversion threshold. Pixel above value are set to white (detected).
     - `min_area`: Minimum area (in pixels) of motion required to trigger detection. Helps filter out small, irrelevant movements.
     - `blur_size`: Size of the Gaussian blur applied to frames to reduce noise and improve detection accuracy.
 - Movie Settings
