@@ -76,7 +76,6 @@ if __name__ == "__main__":
     fps = int(video_capture.get(cv2.CAP_PROP_FPS))
     print(f"Camera resolution: {cam_width}x{cam_height}, FPS: {fps}")
     # Set the GStreamer pipelines for RTSP streaming
-    
     # Frame with contours
     # gst_str_frame = (
     #     "appsrc ! videoconvert ! "
@@ -140,9 +139,6 @@ if __name__ == "__main__":
             frame = draw_contour(frame, contour)
 
         # Write the frame to the RTSP stream
-        video_writer_frame.write(frame)
+        # video_writer_frame.write(frame)
+        video_writer_processed.write(processed_frame)
         counter += 1
-        # if counter > 99:
-        #     break
-        # Write the processed frame to the RTSP stream
-        # video_writer_processed.write(processed_frame)
