@@ -104,13 +104,19 @@ def stream_frames(
             bin_threshold,
             dilate_iterations,
         )
+        if verbose:
+            print("Frame processed successfully.")
 
         # Find contours
         contours = find_contours(processed_frame, min_area, max_area)
+        if verbose:
+            print(f"Found {len(contours)} contours.")
 
         # Draw contours on the original frame
         for contour in contours:
             frame = draw_contour(frame, contour)
+        if verbose:
+            print("Contours drawn on the frame.")
 
         # Write the frame to the RTSP stream
         if video_writer_frame is not None:
