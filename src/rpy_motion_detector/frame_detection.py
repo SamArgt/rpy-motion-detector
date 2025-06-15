@@ -43,7 +43,7 @@ def draw_contour(frame, contour, put_area=True):
     if put_area:
         area = cv2.contourArea(contour)
         cv2.putText(
-            frame, f"Area: {area}", (x, y - 10),
+            frame, f"Area: {area}", (x + 5, y + 15),
             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2
         )
     return frame
