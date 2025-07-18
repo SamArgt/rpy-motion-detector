@@ -28,7 +28,19 @@ def parse_overrides(entries: Optional[list]) -> Dict[str, Dict[str, str]]:
     for item in entries:
         try:
             key, value = item.split("=", 1)
+            if not key or not value:
+                raise ValueError(
+                    f"Invalid override '{item}'. Both key and value must be non-empty."
+                )
+            if "." not in key:
+                raise ValueError(
+                    f"Invalid override '{item}'. Key must contain a section and option separated by a '.'."
+                )
             section, option = key.split(".", 1)
+            if not section or not option:
+                raise ValueError(
+                    f"Invalid override '{item}'. Both section and option must be non-empty."
+                )
         except ValueError as exc:
             raise ValueError(
                 f"Invalid override '{item}'. Expected format section.option=value"
