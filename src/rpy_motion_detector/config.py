@@ -75,7 +75,7 @@ class MotionDetectorConfig:
                 if not config.has_section(section):
                     config.add_section(section)
                 for key, value in options.items():
-                    config.set(section, key, str(value))
+                    config.set(section, key, value)
         self.camera = CameraConfig(
             device=config.get('camera', 'device', fallback='/dev/video0'),
         )
