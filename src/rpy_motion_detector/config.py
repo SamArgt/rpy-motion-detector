@@ -120,7 +120,8 @@ class MotionDetectorConfig:
     def parse_exclude_zones(value: str) -> List[Tuple[int, int, int, int]]:
         """Parse the exclude_zones string from the config file.
 
-        The expected format is "x1,y1,x2,y2;x1,y1,x2,y2".
+        The expected format is "x1,y1,x2,y2;x1,y1,x2,y2" with `x1 < x2` and
+        `y1 < y2` for each tuple. Invalid tuples are ignored.
         Returns a list of tuples (x1, y1, x2, y2).
         """
         zones: List[Tuple[int, int, int, int]] = []
@@ -132,8 +133,11 @@ class MotionDetectorConfig:
                 continue
             try:
                 x1, y1, x2, y2 = map(int, parts)
-                zones.append((x1, y1, x2, y2))
             except ValueError:
                 # Skip malformed zone specification
                 continue
+            if x1 >= x2 or y1 >= y2:
+                # Invalid zone geometry
+                continue
+            zones.append((x1, y1, x2, y2))
         return zones

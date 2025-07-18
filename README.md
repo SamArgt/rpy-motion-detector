@@ -76,7 +76,7 @@ Key Configuration Options:
     - `bin_threshold`: Binary conversion threshold. Pixel above value are set to white (detected).
     - `min_area`: Minimum area (in pixels) of motion required to trigger detection. Helps filter out small, irrelevant movements.
     - `blur_size`: Size of the Gaussian blur applied to frames to reduce noise and improve detection accuracy.
-    - `exclude_zones`: Optional list of zones to ignore. Format: `x1,y1,x2,y2;x1,y1,x2,y2`.
+    - `exclude_zones`: Optional list of zones to ignore. Format: `x1,y1,x2,y2;x1,y1,x2,y2`. Each tuple must satisfy `x1 < x2` and `y1 < y2`.
 - Movie Settings
     - `dirpath`: Directory where recorded videos will be saved.
     - `precapture_seconds`: Number of seconds to include in the video before motion is detected.
