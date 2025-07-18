@@ -146,6 +146,7 @@ class MotionDetector:
             processed_frame,
             min_area=self.config.detection.min_area,
             max_area=self.config.detection.max_area,
+            exclude_zones=self.config.detection.exclude_zones,
         )
         # detect motion after a soak time period
         if time.time() - self.start_time > 10:

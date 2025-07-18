@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import List, Tuple
 import configparser
 
 
@@ -22,6 +23,7 @@ class DetectionConfig:
     blur_size: int = 21
     dilate_iterations: int = 2
     consecutive_frames: int = 3  # number of frames to consider motion detected
+    exclude_zones: list | None = None
 
 
 @dataclass
@@ -81,7 +83,10 @@ class MotionDetectorConfig:
                 'detection', 'background_substractor_history', fallback=500),
             blur_size=config.getint('detection', 'blur_size', fallback=21),
             dilate_iterations=config.getint('detection', 'dilate_iterations', fallback=2),
-            consecutive_frames=config.getint('detection', 'consecutive_frames', fallback=3)
+            consecutive_frames=config.getint('detection', 'consecutive_frames', fallback=3),
+            exclude_zones=self.parse_exclude_zones(
+                config.get('detection', 'exclude_zones', fallback='')
+            ),
         )
         self.movie = MovieConfig(
             enable=config.getboolean('movie', 'enable', fallback=True),
@@ -110,3 +115,25 @@ class MotionDetectorConfig:
         self.tmp_dir = TmpDirConfig(
             dirpath=config.get('tmp', 'dirpath', fallback='/tmp')
         )
+
+    @staticmethod
+    def parse_exclude_zones(value: str) -> List[Tuple[int, int, int, int]]:
+        """Parse the exclude_zones string from the config file.
+
+        The expected format is "x1,y1,x2,y2;x1,y1,x2,y2".
+        Returns a list of tuples (x1, y1, x2, y2).
+        """
+        zones: List[Tuple[int, int, int, int]] = []
+        if not value:
+            return zones
+        for zone in value.split(';'):
+            parts = [p.strip() for p in zone.split(',') if p.strip()]
+            if len(parts) != 4:
+                continue
+            try:
+                x1, y1, x2, y2 = map(int, parts)
+                zones.append((x1, y1, x2, y2))
+            except ValueError:
+                # Skip malformed zone specification
+                continue
+        return zones

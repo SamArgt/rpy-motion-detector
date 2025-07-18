@@ -21,17 +21,26 @@ def frame_processing(frame, blur_size, substractor, bin_threshold, dilate_iterat
     return dilated
 
 
-def find_contours(processed_frame, min_area, max_area):
+def find_contours(processed_frame, min_area, max_area, exclude_zones=None):
     # Find contours
     contours, _ = cv2.findContours(
         processed_frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
     )
     matching_contours = []
+    if exclude_zones is None:
+        exclude_zones = []
     for contour in contours:
         # Calculate the area of each contour
         area = cv2.contourArea(contour)
         if min_area < area < max_area:
-            matching_contours.append(contour)
+            x, y, w, h = cv2.boundingRect(contour)
+            intersect = False
+            for zx1, zy1, zx2, zy2 in exclude_zones:
+                if x < zx2 and x + w > zx1 and y < zy2 and y + h > zy1:
+                    intersect = True
+                    break
+            if not intersect:
+                matching_contours.append(contour)
     return matching_contours
 
 
