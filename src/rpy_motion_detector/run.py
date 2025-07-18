@@ -1,5 +1,6 @@
 from .motion_detector import MotionDetector
 from .config import MotionDetectorConfig
+from typing import Dict, Optional
 import signal
 import sys
 import logging
@@ -20,12 +21,33 @@ class SignalHandler:
         sys.exit(0)
 
 
-def run(config_file: str, dry_run: bool = False, log_output: str = None):
+def parse_overrides(entries: Optional[list]) -> Dict[str, Dict[str, str]]:
+    overrides: Dict[str, Dict[str, str]] = {}
+    if not entries:
+        return overrides
+    for item in entries:
+        try:
+            key, value = item.split("=", 1)
+            section, option = key.split(".", 1)
+        except ValueError as exc:
+            raise ValueError(
+                f"Invalid override '{item}'. Expected format section.option=value"
+            ) from exc
+        overrides.setdefault(section, {})[option] = value
+    return overrides
+
+
+def run(
+    config_file: str,
+    dry_run: bool = False,
+    log_output: str = None,
+    overrides: Optional[Dict[str, Dict[str, str]]] = None,
+):
 
     if not os.path.exists(config_file):
         logger.error(f"Configuration file {config_file} does not exist.")
         sys.exit(1)
-    config = MotionDetectorConfig(config_file)
+    config = MotionDetectorConfig(config_file, overrides)
 
     logging.basicConfig(
         filename=log_output,

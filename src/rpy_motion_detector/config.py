@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 import configparser
+from typing import Dict, Optional
 
 
 @dataclass
@@ -66,9 +67,15 @@ class MotionDetectorConfig:
     log: LogConfig
     tmp_dir: TmpDirConfig
 
-    def __init__(self, config_file: str):
+    def __init__(self, config_file: str, overrides: Optional[Dict[str, Dict[str, str]]] = None):
         config = configparser.ConfigParser()
         config.read(config_file)
+        if overrides:
+            for section, options in overrides.items():
+                if not config.has_section(section):
+                    config.add_section(section)
+                for key, value in options.items():
+                    config.set(section, key, str(value))
         self.camera = CameraConfig(
             device=config.get('camera', 'device', fallback='/dev/video0'),
         )

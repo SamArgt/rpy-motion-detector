@@ -1,4 +1,4 @@
-from rpy_motion_detector.run import run
+from rpy_motion_detector.run import run, parse_overrides
 import argparse
 
 
@@ -22,5 +22,12 @@ if __name__ == "__main__":
         ),
         default=None,
     )
+    parser.add_argument(
+        "-o",
+        "--override",
+        action="append",
+        help="Override configuration values using section.option=value",
+    )
     args = parser.parse_args()
-    run(args.config, args.dry_run, args.log_output)
+    overrides = parse_overrides(args.override)
+    run(args.config, args.dry_run, args.log_output, overrides)
