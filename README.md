@@ -63,8 +63,11 @@ pipx install rpy_motion_detector
 
 3. Run
 ```bash
-rpy_motion_detector --config <CONFIG_FILE> [--log-output <LOG_FILE>] [ --dry-run]
+rpy_motion_detector --config <CONFIG_FILE> [--log-output <LOG_FILE>] [--dry-run] \
+    [-o section.option=value ...]
 ```
+Use `-o` or `--override` to override any configuration value directly from the
+command line. The argument can be provided multiple times.
 
 ## Configuration
 The application is configured using a .ini file located at [default.ini](./config/default.ini). Below is an example configuration:
