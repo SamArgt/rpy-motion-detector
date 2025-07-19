@@ -21,7 +21,17 @@ def frame_processing(frame, blur_size, substractor, bin_threshold, dilate_iterat
     return dilated
 
 
-def find_contours(processed_frame, min_area, max_area, exclude_zones=None):
+def is_intersecting(rect1: tuple[int, int, int, int], rect2: tuple[int, int, int, int]) -> bool:
+    """
+    Check if two rectangles intersect.
+    rect1 and rect2 are tuples (x1, y1, x2, y2).
+    """
+    x11, y11, x12, y12 = rect1
+    x21, y21, x22, y22 = rect2
+    return (x11 < x22 and x21 < x12 and y11 < y22 and y21 < y12)
+
+
+def find_contours(processed_frame, min_area, max_area, exclude_zones: list[tuple[int, int, int, int]] = None):
     # Find contours
     contours, _ = cv2.findContours(
         processed_frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
@@ -35,8 +45,8 @@ def find_contours(processed_frame, min_area, max_area, exclude_zones=None):
         if min_area < area < max_area:
             x, y, w, h = cv2.boundingRect(contour)
             intersect = False
-            for zx1, zy1, zx2, zy2 in exclude_zones:
-                if x < zx2 and x + w > zx1 and y < zy2 and y + h > zy1:
+            for exclude_zone in exclude_zones:
+                if is_intersecting((x, y, x + w, y + h), exclude_zone):
                     intersect = True
                     break
             if not intersect:
