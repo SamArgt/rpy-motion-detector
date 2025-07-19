@@ -93,14 +93,14 @@ class MotionDetectorConfig:
         self.movie = MovieConfig(
             enable=config.getboolean('movie', 'enable', fallback=True),
             device=config.get('movie', 'device', fallback='/dev/video50'),
-            dirpath=config.get('movie', 'dirpath', fallback='/tmp'),
+            dirpath=config.get('movie', 'dirpath', fallback='tmp/'),
             precapture_seconds=config.getint('movie', 'precapture_seconds', fallback=5),
             max_duration=config.getint('movie', 'max_duration', fallback=60),
             record_precapture=config.getboolean('movie', 'record_precapture', fallback=False)
         )
         self.picture = PictureConfig(
             enable=config.getboolean('picture', 'enable', fallback=True),
-            dirpath=config.get('picture', 'dirpath', fallback='/tmp')
+            dirpath=config.get('picture', 'dirpath', fallback='tmp/')
         )
         self.event = EventConfig(
             no_motion_timeout=config.getint('event', 'no_motion_timeout', fallback=20),
@@ -115,5 +115,5 @@ class MotionDetectorConfig:
             level=config.get('log', 'level', fallback='INFO'),
         )
         self.tmp_dir = TmpDirConfig(
-            dirpath=config.get('tmp', 'dirpath', fallback='/tmp')
+            dirpath=config.get('tmp', 'dirpath', fallback='tmp/')
         )

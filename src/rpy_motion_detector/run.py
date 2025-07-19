@@ -56,7 +56,7 @@ def parse_overrides(entries: Optional[list]) -> Dict[str, Dict[str, str]]:
 def run(
     config_file: str,
     dry_run: bool = False,
-    log_output: str = None,
+    log_output: str = "rpy_motion_detector.log",
     overrides: Optional[Dict[str, Dict[str, str]]] = None,
 ):
 
