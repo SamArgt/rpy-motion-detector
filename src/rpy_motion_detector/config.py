@@ -24,7 +24,7 @@ class DetectionConfig:
     blur_size: int = 21
     dilate_iterations: int = 2
     consecutive_frames: int = 3  # number of frames to consider motion detected
-    exclude_zones: list | None = None
+    exclude_zones: List[Tuple[int, int, int, int]] | None = None
 
 
 @dataclass
