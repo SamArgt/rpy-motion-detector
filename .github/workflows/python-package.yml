@@ -41,11 +41,17 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    # TODO: Enable when tests are implemented
-    # - name: Test with pytest
-    #   run: |
-    #     pytest
-    - name: Run app
-      # TODO: fix pipx run
-      # run: rpy-motion-detector --config config/default.ini --dry-run
+    - name: Test with pytest
+      run: |
+        pytest tests/ -v
+    - name: Run app with default config (dry run)
       run: python -m rpy_motion_detector --config config/default.ini --dry-run
+    - name: Test basic override functionality
+      run: python -m rpy_motion_detector --config config/default.ini --dry-run --override detection.min_area=15000
+    - name: Test multiple overrides
+      run: |
+        python -m rpy_motion_detector --config config/default.ini --dry-run \
+          --override detection.min_area=15000 \
+          --override detection.max_area=80000 \
+          --override camera.device=/dev/video2
+
