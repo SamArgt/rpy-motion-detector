@@ -248,7 +248,7 @@ class MotionDetector:
             )
 
     def record_precapture_frames(self, frame_buffer: list, movie_filename: str):
-        logger.info("Recording pre-capture frames to %s", {movie_filename})
+        logger.info("Recording pre-capture frames to %s", movie_filename)
         gst_str = (
             f"appsrc ! "
             f"videoconvert ! "
@@ -404,10 +404,10 @@ class MotionDetector:
                 precapture_movie_filename, movie_filename, final_movie_name
             )
             if success:
+                logger.info(f"Movies concatenated successfully: {final_movie_name}")
+            else:
                 logger.error(f"Error concatenating movies: {error_message}")
                 final_movie_name = movie_filename
-            else:
-                logger.info(f"Movies concatenated successfully: {final_movie_name}")
         # Run the movie end command
         completed = subprocess.run(
             self.config.event.on_movie_end.format(filename=final_movie_name),
@@ -444,7 +444,7 @@ class MotionDetector:
                         self.final_movie_filename,
                     ),
                 ).start()
-                self.precapture_movie_filename = (None,)
+                self.precapture_movie_filename = None
                 self.movie_filename = None
                 self.final_movie_filename = None
             except Exception as e:
