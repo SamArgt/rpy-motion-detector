@@ -120,6 +120,44 @@ class TestParseOverrides(unittest.TestCase):
         expected = {"section": {"sub.option": "value"}}
         self.assertEqual(result, expected)
 
+    def test_parse_overrides_exclude_zones_valid(self):
+        """Test parsing exclude_zones override with valid zones."""
+        result = parse_overrides(["detection.exclude_zones=10,20,30,40;50,60,70,80"])
+        expected = {"detection": {"exclude_zones": "10,20,30,40;50,60,70,80"}}
+        self.assertEqual(result, expected)
+
+    def test_parse_overrides_exclude_zones_empty(self):
+        """Test parsing exclude_zones override with empty value."""
+        with self.assertRaises(ValueError) as context:
+            parse_overrides(["detection.exclude_zones="])
+        self.assertIn(
+            "Invalid override 'detection.exclude_zones='. Expected format section.option=value",
+            str(context.exception),
+        )
+
+    def test_parse_overrides_exclude_zones_complex(self):
+        """Test parsing exclude_zones override with complex coordinate values."""
+        result = parse_overrides(["detection.exclude_zones=100,200,300,400;-10,-20,50,60"])
+        expected = {"detection": {"exclude_zones": "100,200,300,400;-10,-20,50,60"}}
+        self.assertEqual(result, expected)
+
+    def test_parse_overrides_exclude_zones_with_other_detection_params(self):
+        """Test parsing exclude_zones along with other detection parameters."""
+        overrides = [
+            "detection.exclude_zones=10,20,30,40",
+            "detection.min_area=15000",
+            "detection.max_area=90000"
+        ]
+        result = parse_overrides(overrides)
+        expected = {
+            "detection": {
+                "exclude_zones": "10,20,30,40",
+                "min_area": "15000",
+                "max_area": "90000"
+            }
+        }
+        self.assertEqual(result, expected)
+
 
 if __name__ == "__main__":
     unittest.main()

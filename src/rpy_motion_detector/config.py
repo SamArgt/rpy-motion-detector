@@ -128,23 +128,30 @@ class MotionDetectorConfig:
         """Parse the exclude_zones string from the config file.
 
         The expected format is "x1,y1,x2,y2;x1,y1,x2,y2" with `x1 < x2` and
-        `y1 < y2` for each tuple. Invalid tuples are ignored.
+        `y1 < y2` for each tuple.
         Returns a list of tuples (x1, y1, x2, y2).
+        
+        Raises:
+            ValueError: If the zone specification is malformed.
         """
         zones: List[Tuple[int, int, int, int]] = []
         if not value:
             return zones
         for zone in value.split(';'):
+            # Skip empty zones (e.g., from leading/trailing/multiple semicolons)
+            zone = zone.strip()
+            if not zone:
+                continue
             parts = [p.strip() for p in zone.split(',') if p.strip()]
             if len(parts) != 4:
-                continue
+                raise ValueError(f"Zone '{zone}' must have exactly 4 coordinates (x1,y1,x2,y2), got {len(parts)}")
             try:
                 x1, y1, x2, y2 = map(int, parts)
-            except ValueError:
-                # Skip malformed zone specification
-                continue
-            if x1 >= x2 or y1 >= y2:
-                # Invalid zone geometry
-                continue
+            except ValueError as e:
+                raise ValueError(f"Zone '{zone}' contains non-numeric coordinates: {e}")
+            if x1 >= x2:
+                raise ValueError(f"Zone '{zone}' has invalid geometry: x1 ({x1}) must be less than x2 ({x2})")
+            if y1 >= y2:
+                raise ValueError(f"Zone '{zone}' has invalid geometry: y1 ({y1}) must be less than y2 ({y2})")
             zones.append((x1, y1, x2, y2))
         return zones

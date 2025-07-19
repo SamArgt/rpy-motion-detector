@@ -132,6 +132,46 @@ class TestRunFunction(unittest.TestCase):
         # Verify that existing overrides were applied
         self.assertEqual(config_arg.detection.min_area, 25000)
 
+    @patch('rpy_motion_detector.run.MotionDetector')
+    @patch('rpy_motion_detector.run.signal')
+    @patch('rpy_motion_detector.run.logging.basicConfig')
+    def test_run_with_exclude_zones_override(self, mock_logging, mock_signal, mock_detector_class):
+        """Test run function with exclude_zones override."""
+        overrides = {
+            'detection': {'exclude_zones': '10,20,30,40;50,60,70,80'}
+        }
+        run(self.config_filepath, dry_run=True, overrides=overrides)
+        mock_detector_class.assert_called_once()
+        config_arg = mock_detector_class.call_args[0][0]
+        # Verify that exclude_zones were parsed correctly
+        expected_zones = [(10, 20, 30, 40), (50, 60, 70, 80)]
+        self.assertEqual(config_arg.detection.exclude_zones, expected_zones)
+
+    @patch('rpy_motion_detector.run.MotionDetector')
+    @patch('rpy_motion_detector.run.signal')
+    @patch('rpy_motion_detector.run.logging.basicConfig')
+    def test_run_with_invalid_exclude_zones_override(self, mock_logging, mock_signal, mock_detector_class):
+        """Test run function with invalid exclude_zones override raises ValueError."""
+        overrides = {
+            'detection': {'exclude_zones': 'invalid,zone,spec'}
+        }
+        with self.assertRaises(ValueError):
+            run(self.config_filepath, dry_run=True, overrides=overrides)
+
+    @patch('rpy_motion_detector.run.MotionDetector')
+    @patch('rpy_motion_detector.run.signal')
+    @patch('rpy_motion_detector.run.logging.basicConfig')
+    def test_run_with_empty_exclude_zones_override(self, mock_logging, mock_signal, mock_detector_class):
+        """Test run function with empty exclude_zones override."""
+        overrides = {
+            'detection': {'exclude_zones': ''}
+        }
+        run(self.config_filepath, dry_run=True, overrides=overrides)
+        mock_detector_class.assert_called_once()
+        config_arg = mock_detector_class.call_args[0][0]
+        # Verify that empty exclude_zones result in empty list
+        self.assertEqual(config_arg.detection.exclude_zones, [])
+
 
 if __name__ == '__main__':
     unittest.main()
