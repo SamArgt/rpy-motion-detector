@@ -1,5 +1,7 @@
 from dataclasses import dataclass
+from typing import List, Tuple
 import configparser
+from typing import Dict, Optional
 
 
 @dataclass
@@ -22,6 +24,7 @@ class DetectionConfig:
     blur_size: int = 21
     dilate_iterations: int = 2
     consecutive_frames: int = 3  # number of frames to consider motion detected
+    exclude_zones: Optional[List[Tuple[int, int, int, int]]] = None
 
 
 @dataclass
@@ -66,9 +69,15 @@ class MotionDetectorConfig:
     log: LogConfig
     tmp_dir: TmpDirConfig
 
-    def __init__(self, config_file: str):
+    def __init__(self, config_file: str, overrides: Optional[Dict[str, Dict[str, str]]] = None):
         config = configparser.ConfigParser()
         config.read(config_file)
+        if overrides:
+            for section, options in overrides.items():
+                if not config.has_section(section):
+                    config.add_section(section)
+                for key, value in options.items():
+                    config.set(section, key, value)
         self.camera = CameraConfig(
             device=config.get('camera', 'device', fallback='/dev/video0'),
         )
@@ -81,19 +90,22 @@ class MotionDetectorConfig:
                 'detection', 'background_substractor_history', fallback=500),
             blur_size=config.getint('detection', 'blur_size', fallback=21),
             dilate_iterations=config.getint('detection', 'dilate_iterations', fallback=2),
-            consecutive_frames=config.getint('detection', 'consecutive_frames', fallback=3)
+            consecutive_frames=config.getint('detection', 'consecutive_frames', fallback=3),
+            exclude_zones=self.parse_exclude_zones(
+                config.get('detection', 'exclude_zones', fallback='')
+            ),
         )
         self.movie = MovieConfig(
             enable=config.getboolean('movie', 'enable', fallback=True),
             device=config.get('movie', 'device', fallback='/dev/video50'),
-            dirpath=config.get('movie', 'dirpath', fallback='/tmp'),
+            dirpath=config.get('movie', 'dirpath', fallback='tmp/'),
             precapture_seconds=config.getint('movie', 'precapture_seconds', fallback=5),
             max_duration=config.getint('movie', 'max_duration', fallback=60),
             record_precapture=config.getboolean('movie', 'record_precapture', fallback=False)
         )
         self.picture = PictureConfig(
             enable=config.getboolean('picture', 'enable', fallback=True),
-            dirpath=config.get('picture', 'dirpath', fallback='/tmp')
+            dirpath=config.get('picture', 'dirpath', fallback='tmp/')
         )
         self.event = EventConfig(
             no_motion_timeout=config.getint('event', 'no_motion_timeout', fallback=20),
@@ -108,5 +120,38 @@ class MotionDetectorConfig:
             level=config.get('log', 'level', fallback='INFO'),
         )
         self.tmp_dir = TmpDirConfig(
-            dirpath=config.get('tmp', 'dirpath', fallback='/tmp')
+            dirpath=config.get('tmp', 'dirpath', fallback='tmp/')
         )
+
+    @staticmethod
+    def parse_exclude_zones(value: str) -> List[Tuple[int, int, int, int]]:
+        """Parse the exclude_zones string from the config file.
+
+        The expected format is "x1,y1,x2,y2;x1,y1,x2,y2" with `x1 < x2` and
+        `y1 < y2` for each tuple.
+        Returns a list of tuples (x1, y1, x2, y2).
+        
+        Raises:
+            ValueError: If the zone specification is malformed.
+        """
+        zones: List[Tuple[int, int, int, int]] = []
+        if not value:
+            return zones
+        for zone in value.split(';'):
+            # Skip empty zones (e.g., from leading/trailing/multiple semicolons)
+            zone = zone.strip()
+            if not zone:
+                continue
+            parts = [p.strip() for p in zone.split(',') if p.strip()]
+            if len(parts) != 4:
+                raise ValueError(f"Zone '{zone}' must have exactly 4 coordinates (x1,y1,x2,y2), got {len(parts)}")
+            try:
+                x1, y1, x2, y2 = map(int, parts)
+            except ValueError as e:
+                raise ValueError(f"Zone '{zone}' contains non-numeric coordinates: {e}")
+            if x1 >= x2:
+                raise ValueError(f"Zone '{zone}' has invalid geometry: x1 ({x1}) must be less than x2 ({x2})")
+            if y1 >= y2:
+                raise ValueError(f"Zone '{zone}' has invalid geometry: y1 ({y1}) must be less than y2 ({y2})")
+            zones.append((x1, y1, x2, y2))
+        return zones

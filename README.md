@@ -63,8 +63,11 @@ pipx install rpy_motion_detector
 
 3. Run
 ```bash
-rpy_motion_detector --config <CONFIG_FILE> [--log-output <LOG_FILE>] [ --dry-run]
+rpy_motion_detector --config <CONFIG_FILE> [--log-output <LOG_FILE>] [--dry-run] \
+    [-o section.option=value ...]
 ```
+Use `-o` or `--override` to override any configuration value directly from the
+command line. The argument can be provided multiple times.
 
 ## Configuration
 The application is configured using a .ini file located at [default.ini](./config/default.ini). Below is an example configuration:
@@ -76,6 +79,7 @@ Key Configuration Options:
     - `bin_threshold`: Binary conversion threshold. Pixel above value are set to white (detected).
     - `min_area`: Minimum area (in pixels) of motion required to trigger detection. Helps filter out small, irrelevant movements.
     - `blur_size`: Size of the Gaussian blur applied to frames to reduce noise and improve detection accuracy.
+    - `exclude_zones`: Optional list of zones to ignore. Format: `x1,y1,x2,y2;x1,y1,x2,y2`. Each tuple must satisfy `x1 < x2` and `y1 < y2`.
 - Movie Settings
     - `dirpath`: Directory where recorded videos will be saved.
     - `precapture_seconds`: Number of seconds to include in the video before motion is detected.
@@ -88,3 +92,7 @@ Key Configuration Options:
     - `on_picture_save`: Command to execute when a picture is captured.
     - `no_motion_timeout`: Number of seconds of no motion to end an event.
     - `event_gap`: Minimum number of seconds between 2 events.
+
+## Developer Documentation
+
+For an overview of the project layout, setup instructions and contributing guidelines see [DEVELOPER_GUIDE](./docs/DEVELOPER_GUIDE.md).
