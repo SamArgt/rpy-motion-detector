@@ -91,3 +91,7 @@ Key Configuration Options:
     - `on_picture_save`: Command to execute when a picture is captured.
     - `no_motion_timeout`: Number of seconds of no motion to end an event.
     - `event_gap`: Minimum number of seconds between 2 events.
+
+## Developer Documentation
+
+For an overview of the project layout, setup instructions and contributing guidelines see [DEVELOPER_GUIDE](./docs/DEVELOPER_GUIDE.md).
